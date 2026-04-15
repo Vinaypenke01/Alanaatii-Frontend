@@ -10,14 +10,6 @@ import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export interface ScriptWriter {
-  id: string;
-  name: string;
-  email: string;
-  password?: string;
-  status: "active" | "inactive";
-}
-
 /**
  * **A. Writer Creator & Onboarding**
  * - **Where**: `AdminWriters.tsx`

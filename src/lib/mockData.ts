@@ -20,6 +20,7 @@ export interface ScriptWriter {
   id: string;
   name: string;
   email: string;
+  password?: string;
   status: "active" | "inactive";
 }
 
