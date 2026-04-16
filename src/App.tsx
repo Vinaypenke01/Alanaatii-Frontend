@@ -36,6 +36,7 @@ import AdminScripts from "./pages/admin/AdminScripts";
 import AdminPricing from "./pages/admin/AdminPricing";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminCatalog from "@/pages/admin/AdminCatalog";
 import ScrollToTop from "./components/ScrollToTop";
 import NotFound from "./pages/NotFound";
 import SubmitReview from "./pages/SubmitReview";
@@ -76,6 +77,7 @@ const App = () => (
 
           {/* Admin Panel */}
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/catalog" element={<AdminCatalog />} />
           <Route path="/admin/script-packages" element={<AdminScriptPackages />} />
           <Route path="/admin/letter-papers" element={<AdminLetterPapers />} />
           <Route path="/admin/letters" element={<AdminLetters />} />

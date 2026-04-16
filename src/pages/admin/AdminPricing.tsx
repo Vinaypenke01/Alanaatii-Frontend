@@ -32,18 +32,25 @@ export default function AdminPricing() {
           </div>
         </div>
 
-        <div className="bg-card rounded-xl border p-6">
-          <h3 className="font-display text-lg font-semibold text-foreground mb-4">Pincode-based Delivery</h3>
-          <div className="space-y-3">
+        <div className="bg-card rounded-xl border p-4 md:p-6 shadow-sm">
+          <h3 className="font-display text-lg font-bold text-foreground mb-4">Pincode-based Delivery</h3>
+          <div className="space-y-4">
             {pincodes.map((p, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <Input placeholder="Prefix" value={p.prefix} onChange={(e) => updatePincode(i, "prefix", e.target.value)} className="w-24" />
-                <span className="text-muted-foreground">→ ₹</span>
-                <Input type="number" value={p.charge} onChange={(e) => updatePincode(i, "charge", e.target.value)} className="w-24" />
-                <Button variant="ghost" size="sm" onClick={() => removePincode(i)} className="text-destructive">✕</Button>
+              <div key={i} className="flex flex-wrap items-center gap-2 group p-2 rounded-lg hover:bg-muted/30 transition-colors border border-transparent hover:border-border">
+                <div className="flex items-center gap-2">
+                   <Label className="text-[10px] font-bold uppercase text-muted-foreground">Zip</Label>
+                   <Input placeholder="Prefix" value={p.prefix} onChange={(e) => updatePincode(i, "prefix", e.target.value)} className="w-16 h-8 text-xs bg-muted/50 border-none" />
+                </div>
+                <div className="flex items-center gap-2">
+                   <span className="text-muted-foreground text-xs">→ ₹</span>
+                   <Input type="number" value={p.charge} onChange={(e) => updatePincode(i, "charge", e.target.value)} className="w-20 h-8 text-xs bg-muted/50 border-none font-bold text-primary" />
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => removePincode(i)} className="text-destructive h-8 w-8 p-0 ml-auto md:ml-0">
+                  ✕
+                </Button>
               </div>
             ))}
-            <Button variant="outline" size="sm" onClick={addPincode}>+ Add Pincode Rule</Button>
+            <Button variant="outline" size="sm" onClick={addPincode} className="w-full sm:w-auto h-9 text-xs font-bold border-dashed">+ Add Pincode Rule</Button>
           </div>
         </div>
 

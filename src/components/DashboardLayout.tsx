@@ -89,13 +89,20 @@ export function DashboardLayout({ children, title, links, brandLabel }: Dashboar
 
       {/* Main */}
       <div className="flex-1 flex flex-col min-h-screen min-w-0">
-        <header className="h-14 md:h-16 border-b bg-card flex items-center px-4 md:px-6 gap-3">
-          <button className="md:hidden p-1.5 rounded-md text-muted-foreground hover:bg-muted" onClick={() => setMobileOpen(true)}>
-            <Menu size={20} />
+        <header className="h-14 md:h-16 border-b bg-card/80 backdrop-blur-md sticky top-0 z-30 flex items-center px-4 md:px-6 gap-3">
+          <button className="md:hidden p-2 -ml-2 rounded-lg text-muted-foreground hover:bg-muted transition-colors" onClick={() => setMobileOpen(true)}>
+            <Menu size={22} />
           </button>
-          <h1 className="font-display text-lg md:text-xl font-semibold text-foreground truncate">{title}</h1>
+          <div className="flex-1 min-w-0">
+            <h1 className="font-display text-base md:text-xl font-bold text-foreground truncate uppercase tracking-tight">{title}</h1>
+          </div>
+          <div className="flex items-center gap-2">
+             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs border border-primary/20">
+                A
+             </div>
+          </div>
         </header>
-        <main className="flex-1 p-4 md:p-6">
+        <main className="flex-1 p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto w-full">
           {children}
         </main>
       </div>

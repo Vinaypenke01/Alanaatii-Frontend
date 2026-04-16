@@ -51,23 +51,65 @@ export default function AdminPayments() {
 
   return (
     <DashboardLayout title="Verify Payments" links={adminLinks} brandLabel="Admin Panel">
-      <div className="relative flex min-h-[calc(100vh-12rem)] gap-6">
+      <div className="relative flex flex-col lg:flex-row gap-6">
         {/* Main List */}
-        <div className={cn("transition-all duration-300", selectedScreenshot ? "w-1/2" : "w-full")}>
-          <div className="bg-card rounded-xl border overflow-hidden">
-            <div className="p-6 border-b">
+        <div className={cn("transition-all duration-300 w-full", selectedScreenshot && "lg:w-1/2")}>
+          <div className="bg-card rounded-xl border overflow-hidden shadow-sm">
+            <div className="p-4 md:p-6 border-b bg-muted/10">
               <h2 className="text-lg font-bold text-foreground">Pending Payment Verifications</h2>
               <p className="text-sm text-muted-foreground">Review screenshots and approve payments.</p>
             </div>
             
-            <div className="overflow-x-auto">
+            {/* Mobile View: Cards */}
+            <div className="block md:hidden divide-y">
+              {orders.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">No pending payments.</div>
+              ) : (
+                orders.map((o) => (
+                  <div 
+                    key={o.id} 
+                    className={cn(
+                      "p-4 active:bg-primary/5 transition-colors cursor-pointer",
+                      selectedScreenshot === o.paymentScreenshot && "bg-primary/5 border-l-4 border-l-primary"
+                    )}
+                    onClick={() => setSelectedScreenshot(o.paymentScreenshot || "/placeholder.svg")}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                       <span className="font-mono text-xs font-bold text-primary">{o.id}</span>
+                       <span className={cn(
+                        "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter",
+                        o.status === "payment_pending" ? "bg-orange-100 text-orange-700 border-orange-200" : "bg-green-100 text-green-700"
+                      )}>
+                        {statusLabels[o.status]}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-end">
+                      <div>
+                        <p className="font-bold text-foreground">{o.recipientName}</p>
+                        <p className="text-sm font-black text-primary mt-1">₹{o.total}</p>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-8 border-primary text-primary hover:bg-primary/5 gap-2 text-xs"
+                      >
+                        <Eye size={12} /> View
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Desktop View: Table */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b bg-muted/50">
-                    <th className="text-left p-4 font-medium text-muted-foreground">Order ID</th>
-                    <th className="text-left p-4 font-medium text-muted-foreground">Customer</th>
-                    <th className="text-left p-4 font-medium text-muted-foreground">Total</th>
-                    <th className="text-center p-4 font-medium text-muted-foreground">Actions</th>
+                  <tr className="border-b bg-muted/30">
+                    <th className="text-left p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Order ID</th>
+                    <th className="text-left p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Customer</th>
+                    <th className="text-left p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Total</th>
+                    <th className="text-center p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -81,25 +123,25 @@ export default function AdminPayments() {
                         "border-b last:border-0 hover:bg-muted/30 transition-colors cursor-pointer",
                         selectedScreenshot === o.paymentScreenshot && "bg-primary/5 shadow-inner"
                       )} onClick={() => setSelectedScreenshot(o.paymentScreenshot || "/placeholder.svg")}>
-                        <td className="p-4 font-mono font-medium text-foreground">{o.id}</td>
+                        <td className="p-4 font-mono font-bold text-foreground">{o.id}</td>
                         <td className="p-4">
-                          <p className="font-medium text-foreground">{o.recipientName}</p>
-                          <p className="text-xs text-muted-foreground">{statusLabels[o.status]}</p>
+                          <p className="font-bold text-foreground">{o.recipientName}</p>
+                          <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">{statusLabels[o.status]}</p>
                         </td>
-                        <td className="p-4 text-primary font-bold">₹{o.total}</td>
+                        <td className="p-4 text-primary font-black">₹{o.total}</td>
                         <td className="p-4">
                           <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
                             {o.status === "payment_pending" ? (
                               <Button 
                                 variant="outline" 
                                 size="sm" 
-                                className="h-8 border-primary text-primary hover:bg-primary/5 gap-2"
+                                className="h-8 border-primary text-primary hover:bg-primary/5 gap-2 shadow-sm"
                                 onClick={() => setSelectedScreenshot(o.paymentScreenshot || "/placeholder.svg")}
                               >
                                 <Eye size={14} /> View Receipt
                               </Button>
                             ) : (
-                              <span className="text-xs text-green-600 font-medium flex items-center gap-1"><Check size={14} /> Verified</span>
+                              <span className="text-xs text-green-600 font-bold flex items-center gap-1 bg-green-50 px-2 py-1 rounded border border-green-100 italic"><Check size={14} /> Verified</span>
                             )}
                           </div>
                         </td>
@@ -112,38 +154,40 @@ export default function AdminPayments() {
           </div>
         </div>
 
-        {/* Side Panel Viewer */}
+        {/* Side Panel Viewer / Overlay on Mobile */}
         {selectedScreenshot && (
-          <div className="w-1/2 h-fit sticky top-0 animate-in slide-in-from-right duration-300">
-            <div className="bg-card rounded-xl border overflow-hidden flex flex-col shadow-xl">
-              <div className="p-4 border-b flex items-center justify-between bg-muted/30">
-                <span className="font-bold text-sm flex items-center gap-2"><CreditCard size={16} /> Payment Receipt</span>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedScreenshot(null)}>
+          <div className="w-full lg:w-1/2 h-fit lg:sticky lg:top-0 animate-in slide-in-from-bottom lg:slide-in-from-right duration-300 z-10">
+            <div className="bg-card rounded-xl border overflow-hidden flex flex-col shadow-2xl ring-1 ring-black/5">
+              <div className="p-4 border-b flex items-center justify-between bg-muted/40">
+                <span className="font-bold text-sm tracking-tight flex items-center gap-2"><CreditCard size={16} className="text-primary" /> Payment Receipt</span>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => setSelectedScreenshot(null)}>
                   <X size={18} />
                 </Button>
               </div>
-              <div className="p-4 bg-slate-900 flex items-center justify-center min-h-[300px]">
+              <div className="p-4 bg-slate-900 flex items-center justify-center min-h-[350px]">
                 <img 
                   src={selectedScreenshot} 
                   alt="Payment Receipt" 
-                  className="max-w-full max-h-[500px] object-contain shadow-2xl rounded"
+                  className="max-w-full max-h-[60vh] lg:max-h-[500px] object-contain shadow-2xl rounded-lg"
                 />
               </div>
-              <div className="p-4 border-t bg-muted/20 flex flex-col gap-3">
-                <p className="text-xs text-muted-foreground text-center">
-                  Review the amount and transaction ID carefully.
-                </p>
-                <div className="flex gap-2">
-                  <Button variant="outline" className="flex-1" onClick={() => setSelectedScreenshot(null)}>Close</Button>
+              <div className="p-4 lg:p-6 border-t bg-card flex flex-col gap-4">
+                <div className="bg-muted/30 p-3 rounded-lg border border-dashed text-center">
+                  <p className="text-xs text-muted-foreground font-medium">
+                    Please verify the bank reference and total amount matched before approving.
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <Button variant="outline" className="flex-1 h-12 font-bold" onClick={() => setSelectedScreenshot(null)}>Close</Button>
                   <Button 
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white gap-2"
+                    className="flex-1 h-12 bg-green-600 hover:bg-green-700 text-white gap-2 font-bold shadow-lg shadow-green-600/20"
                     onClick={() => {
                       const order = orders.find(o => o.paymentScreenshot === selectedScreenshot);
                       if (order) verifyPayment(order.id);
                       setSelectedScreenshot(null);
                     }}
                   >
-                    <Check size={16} /> Mark as Verified
+                    <Check size={18} /> Approve Payment
                   </Button>
                 </div>
               </div>

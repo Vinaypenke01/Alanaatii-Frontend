@@ -18,12 +18,7 @@ const links = [
   {
     category: "Catalog Management",
     items: [
-      { to: "/admin/script-packages", label: "Script Packages", icon: ScrollText },
-      { to: "/admin/letter-papers", label: "Letter Papers", icon: FileImage },
-      { to: "/admin/letters", label: "Letters", icon: FileText },
-      { to: "/admin/text-styles", label: "Text Styles", icon: Type },
-      { to: "/admin/boxes", label: "Boxes", icon: Package },
-      { to: "/admin/gifts", label: "Gifts", icon: Gift },
+      { to: "/admin/catalog", label: "Catalog Overview", icon: Package },
     ]
   },
   {
@@ -69,7 +64,7 @@ export default function AdminDashboard() {
 
   return (
     <DashboardLayout title="Admin Dashboard" links={links} brandLabel="Admin Panel">
-      <div className="space-y-8">
+      <div className="space-y-6 md:space-y-8">
         {/* Main Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard label="Total Orders" value={String(mockOrders.length)} icon={ShoppingCart} color="bg-blue-500" />
@@ -80,31 +75,34 @@ export default function AdminDashboard() {
 
         {/* Revenue Breakdown */}
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display text-xl font-bold text-foreground">Revenue by Category</h3>
-            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">Live Distribution</span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
+            <h3 className="font-display text-lg md:text-xl font-bold text-foreground">Revenue by Category</h3>
+            <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground bg-muted px-2 py-1 rounded border">Live Distribution</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {categoryStats.map((stat) => {
               const Icon = getCategoryIcon(stat.type);
               const percentage = totalRevenue > 0 ? Math.round((stat.revenue / totalRevenue) * 100) : 0;
               return (
-                <div key={stat.type} className="bg-card rounded-xl border p-4 shadow-sm hover:shadow-md transition-shadow group">
+                <div key={stat.type} className="bg-card rounded-xl border p-4 shadow-sm hover:shadow-md transition-all group flex flex-col h-full">
                   <div className="flex items-start justify-between mb-3">
                     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                       <Icon size={18} />
                     </div>
-                    <span className="text-[10px] font-bold text-primary bg-primary/5 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] font-bold text-primary bg-primary/5 px-1.5 py-0.5 rounded border border-primary/10">
                       {percentage}%
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground font-medium truncate">{stat.label}</p>
-                  <p className="text-xl font-black text-foreground mt-1">₹{stat.revenue.toLocaleString()}</p>
-                  <div className="flex items-center gap-1 mt-2">
-                    <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
+                  <p className="text-xs text-muted-foreground font-medium truncate mb-1">{stat.label}</p>
+                  <p className="text-lg md:text-xl font-black text-foreground mb-auto">₹{stat.revenue.toLocaleString()}</p>
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between mb-1">
+                       <span className="text-[10px] text-muted-foreground">{stat.count} sales</span>
+                       <span className="text-[10px] font-bold text-primary">{percentage}%</span>
+                    </div>
+                    <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
                       <div className="h-full bg-primary" style={{ width: `${percentage}%` }} />
                     </div>
-                    <span className="text-[10px] text-muted-foreground whitespace-nowrap">{stat.count} sales</span>
                   </div>
                 </div>
               );
@@ -112,35 +110,35 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="bg-card rounded-xl border p-6">
+        <div className="bg-card rounded-xl border p-4 md:p-6 shadow-sm overflow-hidden">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="font-display text-lg font-semibold text-foreground">Recent Orders</h3>
-            <Button variant="ghost" size="sm" className="text-primary text-xs font-bold uppercase tracking-wider">View All</Button>
+            <h3 className="font-display text-base md:text-lg font-bold text-foreground">Recent Orders</h3>
+            <Button variant="ghost" size="sm" className="text-primary text-[10px] font-bold uppercase tracking-widest hover:bg-primary/10">View All</Button>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-4 md:mx-0 px-4 md:px-0">
+            <table className="w-full text-sm min-w-[600px]">
               <thead className="bg-muted/30">
                 <tr className="text-muted-foreground">
-                  <th className="text-left p-3 font-medium">ID</th>
-                  <th className="text-left p-3 font-medium">Product</th>
-                  <th className="text-left p-3 font-medium">Recipient</th>
-                  <th className="text-left p-3 font-medium">Total</th>
-                  <th className="text-left p-3 font-medium">Status</th>
+                  <th className="text-left p-3 font-bold uppercase tracking-wider text-[10px]">ID</th>
+                  <th className="text-left p-3 font-bold uppercase tracking-wider text-[10px]">Product</th>
+                  <th className="text-left p-3 font-bold uppercase tracking-wider text-[10px]">Recipient</th>
+                  <th className="text-left p-3 font-bold uppercase tracking-wider text-[10px]">Total</th>
+                  <th className="text-left p-3 font-bold uppercase tracking-wider text-[10px]">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {mockOrders.slice(0, 5).map((o) => (
-                  <tr key={o.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
-                    <td className="p-3 font-mono font-bold text-foreground">{o.id}</td>
-                    <td className="p-3 text-muted-foreground text-xs">{productTypeLabels[o.productType]}</td>
-                    <td className="p-3 text-muted-foreground text-xs font-medium">{o.recipientName}</td>
-                    <td className="p-3 text-primary font-bold">₹{o.total}</td>
+                  <tr key={o.id} className="border-b last:border-0 hover:bg-muted/10 transition-colors">
+                    <td className="p-3 font-mono font-bold text-foreground text-xs">{o.id}</td>
+                    <td className="p-3 text-muted-foreground text-[11px] leading-tight font-medium max-w-[150px] truncate">{productTypeLabels[o.productType]}</td>
+                    <td className="p-3 text-muted-foreground text-[11px] font-medium">{o.recipientName}</td>
+                    <td className="p-3 text-primary font-bold whitespace-nowrap">₹{o.total}</td>
                     <td className="p-3">
                       <span className={cn(
-                        "text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter",
-                        o.status === "delivered" ? "bg-green-100 text-green-700" :
-                        o.status === "payment_pending" ? "bg-orange-100 text-orange-700" :
-                        "bg-muted text-muted-foreground"
+                        "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter whitespace-nowrap",
+                        o.status === "delivered" ? "bg-green-100 text-green-700 border border-green-200" :
+                        o.status === "payment_pending" ? "bg-orange-100 text-orange-700 border border-orange-200" :
+                        "bg-muted text-muted-foreground border border-border"
                       )}>
                         {statusLabels[o.status]}
                       </span>

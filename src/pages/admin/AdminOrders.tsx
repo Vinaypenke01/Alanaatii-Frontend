@@ -22,29 +22,71 @@ export default function AdminOrders() {
 
   return (
     <DashboardLayout title="Manage Orders" links={adminLinks} brandLabel="Admin Panel">
-      <div className="bg-card rounded-xl border overflow-hidden">
+      {/* Mobile-Responsive View: Cards on Small Screens */}
+      <div className="block lg:hidden space-y-4">
+        {orders.map((o) => (
+          <div key={o.id} className="bg-card rounded-xl border p-4 shadow-sm space-y-4">
+            <div className="flex justify-between items-start">
+              <div>
+                <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded border border-primary/10 uppercase tracking-tighter">
+                  {o.id}
+                </span>
+                <h3 className="font-bold text-foreground mt-1">{o.recipientName}</h3>
+                <p className="text-xs text-muted-foreground">{o.letterType}</p>
+              </div>
+              <p className="text-lg font-black text-primary">₹{o.total}</p>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3 pt-2 border-t font-medium">
+              <div className="space-y-1">
+                <p className="text-[10px] uppercase text-muted-foreground font-bold">Assign Writer</p>
+                <Select value={o.assignedWriterId ?? ""} onValueChange={(v) => assignWriter(o.id, v)}>
+                  <SelectTrigger className="w-full h-9 text-xs bg-muted/30 border-none"><SelectValue placeholder="Assign..." /></SelectTrigger>
+                  <SelectContent>
+                    {mockWriters.filter((w) => w.status === "active").map((w) => (
+                      <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <p className="text-[10px] uppercase text-muted-foreground font-bold">Status</p>
+                <Select value={o.status} onValueChange={(v) => updateStatus(o.id, v as OrderStatus)}>
+                  <SelectTrigger className="w-full h-9 text-xs bg-primary/5 text-primary border-none font-bold"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {statusOrder.map((s) => <SelectItem key={s} value={s}>{statusLabels[s]}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden lg:block bg-card rounded-xl border overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b bg-muted/50">
-                <th className="text-left p-4 font-medium text-muted-foreground">ID</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Letter</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Recipient</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Total</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Writer</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
+              <tr className="border-b bg-muted/30">
+                <th className="text-left p-4 p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Order ID</th>
+                <th className="text-left p-4 p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Letter</th>
+                <th className="text-left p-4 p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Recipient</th>
+                <th className="text-left p-4 p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Total</th>
+                <th className="text-left p-4 p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Writer</th>
+                <th className="text-left p-4 p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Status</th>
               </tr>
             </thead>
             <tbody>
               {orders.map((o) => (
-                <tr key={o.id} className="border-b last:border-0">
-                  <td className="p-4 font-medium text-foreground">{o.id}</td>
-                  <td className="p-4 text-muted-foreground">{o.letterType}</td>
-                  <td className="p-4 text-muted-foreground">{o.recipientName}</td>
-                  <td className="p-4 text-primary font-semibold">₹{o.total}</td>
+                <tr key={o.id} className="border-b last:border-0 hover:bg-muted/10 transition-colors">
+                  <td className="p-4 font-mono font-bold text-foreground">{o.id}</td>
+                  <td className="p-4 text-muted-foreground font-medium">{o.letterType}</td>
+                  <td className="p-4 text-muted-foreground font-medium">{o.recipientName}</td>
+                  <td className="p-4 text-primary font-black">₹{o.total}</td>
                   <td className="p-4">
                     <Select value={o.assignedWriterId ?? ""} onValueChange={(v) => assignWriter(o.id, v)}>
-                      <SelectTrigger className="w-[140px] h-8 text-xs"><SelectValue placeholder="Assign..." /></SelectTrigger>
+                      <SelectTrigger className="w-[150px] h-8 text-xs bg-muted/20 border-border/50"><SelectValue placeholder="Assign..." /></SelectTrigger>
                       <SelectContent>
                         {mockWriters.filter((w) => w.status === "active").map((w) => (
                           <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
@@ -54,7 +96,7 @@ export default function AdminOrders() {
                   </td>
                   <td className="p-4">
                     <Select value={o.status} onValueChange={(v) => updateStatus(o.id, v as OrderStatus)}>
-                      <SelectTrigger className="w-[160px] h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="w-[180px] h-8 text-xs bg-primary/5 text-primary border-primary/20 font-bold"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {statusOrder.map((s) => <SelectItem key={s} value={s}>{statusLabels[s]}</SelectItem>)}
                       </SelectContent>
