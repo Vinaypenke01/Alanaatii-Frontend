@@ -18,6 +18,7 @@ import {
 import { mockCoupons } from "@/lib/mockData";
 import { format, addWeeks, isBefore } from "date-fns";
 import { CalendarIcon, ArrowLeft, ArrowRight, Check, Minus, Plus, Ticket } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
@@ -41,6 +42,7 @@ function getSteps(productType: string): string[] {
 
 export default function OrderFlow() {
   const store = useOrderStore();
+  const navigate = useNavigate();
   const { step, productType, setStep, setField } = store;
   const [couponInput, setCouponInput] = useState("");
 
@@ -120,7 +122,13 @@ export default function OrderFlow() {
     if (!canNext()) { toast.error("Please complete all required fields"); return; }
     if (step < steps.length - 1) setStep(step + 1);
   };
-  const prev = () => { if (step > 0) setStep(step - 1); };
+  const prev = () => { 
+    if (step > 0) {
+      setStep(step - 1);
+    } else {
+      navigate("/products");
+    }
+  };
 
   const renderStep = () => {
     switch (currentStepName) {
@@ -131,6 +139,7 @@ export default function OrderFlow() {
             <div className="grid gap-4">
               {scriptPackages.map((s) => (
                 <PricingCard key={s.id} title={s.title} description={s.description} price={s.price}
+                  image={s.image}
                   selected={store.scriptPackageId === s.id} onClick={() => setField("scriptPackageId", s.id)} />
               ))}
             </div>
@@ -151,6 +160,7 @@ export default function OrderFlow() {
             <div className="grid gap-4">
               {letterPapers.map((p) => (
                 <PricingCard key={p.id} title={p.title} description={p.description} price={p.price}
+                  image={p.image}
                   selected={store.letterPaperId === p.id} onClick={() => setField("letterPaperId", p.id)} />
               ))}
             </div>
@@ -190,6 +200,7 @@ export default function OrderFlow() {
             <div className="grid gap-4">
               {letters.map((l) => (
                 <PricingCard key={l.id} title={l.title} description={l.description} price={l.price}
+                  image={l.image}
                   selected={store.letterId === l.id} onClick={() => setField("letterId", l.id)} />
               ))}
             </div>
@@ -204,6 +215,7 @@ export default function OrderFlow() {
               <div className="grid gap-4">
                 {textStyles.map((t) => (
                   <PricingCard key={t.id} title={t.title} description={t.description} price={t.price}
+                    image={(t as any).image}
                     selected={store.textStyleId === t.id} onClick={() => setField("textStyleId", t.id)} />
                 ))}
               </div>
@@ -238,6 +250,7 @@ export default function OrderFlow() {
             <div className="grid gap-4">
               {boxes.map((b) => (
                 <PricingCard key={b.id} title={b.title} description={b.description} price={b.price}
+                  image={b.image}
                   selected={store.boxId === b.id} onClick={() => setField("boxId", b.id)}
                   badge={b.id === "premium" ? "Popular" : undefined} />
               ))}
@@ -252,7 +265,7 @@ export default function OrderFlow() {
             <div className="grid gap-4">
               {gifts.map((g) => (
                 <PricingCard key={g.id} title={g.title} description={g.description}
-                  price={g.price} selected={store.giftId === g.id}
+                  price={g.price} image={g.image} selected={store.giftId === g.id}
                   onClick={() => setField("giftId", g.id)}
                   badge={g.id === "custom" ? "Custom" : undefined} />
               ))}
@@ -484,20 +497,26 @@ export default function OrderFlow() {
       <Navbar />
       <div className="pt-24 pb-20">
         <div className="container max-w-2xl">
-          {/* Product type selector */}
-          {step === 0 && (
-            <div className="flex flex-wrap gap-2 justify-center mb-6">
-              {productTypes.map((pt) => (
-                <button key={pt.id} onClick={() => { setField("productType", pt.id); setStep(0); }}
-                  className={cn(
-                    "text-xs px-3 py-1.5 rounded-full border font-medium transition-all",
-                    productType === pt.id ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border hover:border-primary/40"
-                  )}>
-                  {pt.title}
-                </button>
-              ))}
+
+          <div className="flex items-center justify-between mb-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate("/products")}
+              className="text-muted-foreground hover:text-foreground -ml-2 h-8"
+            >
+              <ArrowLeft size={14} className="mr-2" /> Back to Products
+            </Button>
+            <div className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded border">
+              Step {step + 1} of {steps.length}
             </div>
-          )}
+          </div>
+
+          <div className="mb-6">
+            <h1 className="text-xl font-display font-bold text-foreground">
+              Configuring: <span className="text-primary">{productTypes.find(pt => pt.id === productType)?.title}</span>
+            </h1>
+          </div>
 
           <Stepper steps={steps} current={step} />
 
@@ -506,7 +525,7 @@ export default function OrderFlow() {
 
             {currentStepName !== "Pay" && (
               <div className="flex justify-between mt-8 pt-6 border-t">
-                <Button variant="outline" onClick={prev} disabled={step === 0}>
+                <Button variant="outline" onClick={prev}>
                   <ArrowLeft size={16} className="mr-1" /> Back
                 </Button>
                 <Button onClick={next} className="bg-gradient-gold text-primary-foreground hover:opacity-90">

@@ -36,7 +36,9 @@ import AdminScripts from "./pages/admin/AdminScripts";
 import AdminPricing from "./pages/admin/AdminPricing";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import ScrollToTop from "./components/ScrollToTop";
 import NotFound from "./pages/NotFound";
+import SubmitReview from "./pages/SubmitReview";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +48,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/products" element={<Products />} />
@@ -54,6 +57,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/order" element={<OrderFlow />} />
+          <Route path="/submit-review" element={<SubmitReview />} />
 
           {/* User Dashboard */}
           <Route path="/dashboard" element={<UserDashboard />} />

@@ -25,7 +25,7 @@ export function Stepper({ steps, current }: StepperProps) {
               {i < current ? <Check size={14} /> : i + 1}
             </div>
             <span className={cn(
-              "text-[10px] mt-1 text-center leading-tight",
+              "text-xs mt-1 text-center leading-tight whitespace-nowrap",
               i <= current ? "text-foreground font-medium" : "text-muted-foreground"
             )}>{label}</span>
           </div>

@@ -2,7 +2,6 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOrderStore } from "@/lib/orderStore";
 import { productTypes } from "@/lib/data";
 import productLetter from "@/assets/product-letter.jpg";
@@ -43,44 +42,51 @@ export default function Products() {
           <h1 className="font-display text-4xl font-bold text-foreground text-center mb-2">Our Products</h1>
           <p className="text-muted-foreground text-center mb-10">Choose the perfect option for your special someone</p>
 
-          <Tabs defaultValue="script" className="max-w-3xl mx-auto">
-            <TabsList className="grid w-full grid-cols-5 mb-8">
-              {productTypes.map((pt) => (
-                <TabsTrigger key={pt.id} value={pt.id} className="text-xs sm:text-sm">
-                  {pt.title}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {productTypes.map((pt) => {
               const details = productDetails[pt.id];
               return (
-                <TabsContent key={pt.id} value={pt.id}>
-                  <div className="rounded-xl overflow-hidden border bg-card shadow-sm">
-                    <img src={details.img} alt={pt.title} className="w-full h-72 object-cover" loading="lazy" />
-                    <div className="p-8">
+                <div key={pt.id} className="flex flex-col h-full">
+                  <div className="rounded-xl overflow-hidden border bg-card shadow-sm flex flex-col h-full hover:shadow-md transition-shadow">
+                    <div className="aspect-video relative overflow-hidden">
+                      <img 
+                        src={details.img} 
+                        alt={pt.title} 
+                        className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500" 
+                        loading="lazy" 
+                      />
+                    </div>
+                    <div className="p-6 flex flex-col flex-grow">
                       <h2 className="font-display text-2xl font-bold text-card-foreground">{pt.title}</h2>
-                      <p className="text-muted-foreground mt-2">{pt.description}</p>
-                      <p className="text-primary font-bold text-xl mt-4">From ₹{pt.from}</p>
-                      <ul className="mt-4 space-y-2">
-                        {details.includes.map((item, i) => (
-                          <li key={i} className="text-sm text-muted-foreground flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                      <Link to="/order" onClick={() => setField("productType", pt.id)}>
-                        <Button className="mt-6 bg-gradient-gold text-primary-foreground hover:opacity-90">
+                      <p className="text-muted-foreground mt-2 text-sm flex-grow">{pt.description}</p>
+                      
+                      <div className="mt-4 pt-4 border-t border-border">
+                        <p className="text-primary font-bold text-2xl">From ₹{pt.from}</p>
+                        <ul className="mt-4 space-y-2">
+                          {details.includes.map((item, i) => (
+                            <li key={i} className="text-sm text-muted-foreground flex items-center gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-primary/60 inline-block" />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      <Link 
+                        to="/order" 
+                        onClick={() => setField("productType", pt.id)}
+                        className="mt-6"
+                      >
+                        <Button className="w-full bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold py-6">
                           Start Creating
                         </Button>
                       </Link>
                     </div>
                   </div>
-                </TabsContent>
+                </div>
               );
             })}
-          </Tabs>
+          </div>
         </div>
       </div>
       <Footer />
