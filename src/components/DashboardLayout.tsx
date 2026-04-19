@@ -48,7 +48,7 @@ export function DashboardLayout({ children, title, links, brandLabel }: Dashboar
   return (
     <div className="min-h-screen flex bg-muted/30">
       {/* Sidebar - desktop */}
-      <aside className="hidden md:flex w-64 flex-col border-r bg-card shrink-0">
+      <aside className="hidden md:flex w-64 flex-col border-r bg-card shrink-0 sticky top-0 h-screen">
         <div className="p-6 border-b text-center md:text-left">
           <Link to="/" className="font-display text-xl font-bold text-gradient-gold">Alanaatii</Link>
           <p className="text-xs text-muted-foreground mt-1">{brandLabel}</p>

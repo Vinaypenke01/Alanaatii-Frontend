@@ -1,12 +1,13 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { Reveal } from "@/components/Reveal";
 
 export default function About() {
   return (
     <div className="min-h-screen">
       <Navbar />
       <div className="pt-24 pb-20">
-        <div className="container max-w-3xl">
+        <Reveal className="container max-w-3xl" width="100%">
           <h1 className="font-display text-4xl font-bold text-foreground text-center mb-8">About Alanaatii</h1>
 
           <div className="space-y-6 text-muted-foreground leading-relaxed">
@@ -27,7 +28,7 @@ export default function About() {
             <p>Phone: +91 98765 43210</p>
             <p>Based in Hyderabad, India 🇮🇳</p>
           </div>
-        </div>
+        </Reveal>
       </div>
       <Footer />
     </div>

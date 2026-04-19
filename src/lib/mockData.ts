@@ -4,6 +4,7 @@ export type OrderStatus =
   | "payment_pending"
   | "order_placed"
   | "assigned_to_writer"
+  | "assignment_rejected"
   | "accepted_by_writer"
   | "script_in_progress"
   | "script_submitted"
@@ -54,12 +55,16 @@ export interface Order {
   // Letter paper fields
   paperType?: string;
   paperQuantity?: number;
+  // Rejection tracking
+  rejectionReason?: string;
+  rejectedByWriterId?: string;
 }
 
 export const statusLabels: Record<OrderStatus, string> = {
   payment_pending: "Payment Pending",
   order_placed: "Order Placed",
   assigned_to_writer: "Assigned to Writer",
+  assignment_rejected: "Assignment Rejected",
   accepted_by_writer: "Accepted by Writer",
   script_in_progress: "Script in Progress",
   script_submitted: "Script Submitted",
@@ -75,6 +80,7 @@ export const statusOrder: OrderStatus[] = [
   "payment_pending",
   "order_placed",
   "assigned_to_writer",
+  "assignment_rejected",
   "accepted_by_writer",
   "script_in_progress",
   "script_submitted",
@@ -345,6 +351,48 @@ export const mockOrders: Order[] = [
     pincode: "600040",
     createdAt: "2026-04-15",
     tone: "Respectful"
+  },
+  {
+    id: "ORD-010",
+    productType: "letter" as const,
+    letterType: "Appreciation Letter",
+    textStyle: "English",
+    box: null,
+    gift: null,
+    recipientName: "Vikram",
+    relation: "Employee",
+    status: "assignment_rejected" as const,
+    total: 450,
+    deliveryDate: "2026-05-12",
+    address: "Palam Vihar",
+    city: "Gurgaon",
+    pincode: "122017",
+    createdAt: "2026-04-12",
+    assignedWriterId: undefined,
+    rejectedByWriterId: "w2",
+    rejectionReason: "Language barrier - customer requested Telugu content specifically.",
+    tone: "Professional & Appreciative"
+  },
+  {
+    id: "ORD-011",
+    productType: "script" as const,
+    letterType: "Condolence Script",
+    textStyle: "",
+    box: null,
+    gift: null,
+    recipientName: "The Family",
+    relation: "Friend",
+    status: "assignment_rejected" as const,
+    total: 350,
+    deliveryDate: "",
+    address: "",
+    city: "",
+    pincode: "",
+    createdAt: "2026-04-13",
+    assignedWriterId: undefined,
+    rejectedByWriterId: "w1",
+    rejectionReason: "Personal reasons - cannot write emotional content today.",
+    tone: "Sincere & Somber"
   },
 ];
 

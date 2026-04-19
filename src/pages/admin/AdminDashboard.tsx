@@ -25,7 +25,6 @@ const links = [
     category: "System & Tools",
     items: [
       { to: "/admin/questions", label: "Admin Questions", icon: HelpCircle },
-      { to: "/admin/pricing", label: "Pricing Rules", icon: Settings },
       { to: "/admin/coupons", label: "Discount Coupons", icon: Ticket },
       { to: "/admin/analytics", label: "Detailed Analytics", icon: BarChart3 },
     ]

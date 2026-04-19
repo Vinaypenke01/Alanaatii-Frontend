@@ -10,6 +10,14 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useOrderStore } from "@/lib/orderStore";
 import {
   productTypes, scriptPackages, expressScriptFee, letterPapers,
@@ -17,7 +25,7 @@ import {
 } from "@/lib/data";
 import { mockCoupons } from "@/lib/mockData";
 import { format, addWeeks, isBefore } from "date-fns";
-import { CalendarIcon, ArrowLeft, ArrowRight, Check, Minus, Plus, Ticket } from "lucide-react";
+import { CalendarIcon, ArrowLeft, ArrowRight, Check, Minus, Plus, Ticket, CheckCircle2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -45,6 +53,7 @@ export default function OrderFlow() {
   const navigate = useNavigate();
   const { step, productType, setStep, setField } = store;
   const [couponInput, setCouponInput] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const steps = useMemo(() => getSteps(productType), [productType]);
   const currentStepName = steps[step];
@@ -476,9 +485,7 @@ export default function OrderFlow() {
                   store.paymentScreenshot ? "bg-gradient-gold text-primary-foreground hover:opacity-90" : "bg-muted text-muted-foreground grayscale"
                 )}
                 onClick={() => { 
-                  toast.success("Payment receipt submitted! Admin will verify it shortly."); 
-                  store.reset(); 
-                  setStep(0); 
+                  setShowSuccessModal(true);
                 }}
               >
                 {store.paymentScreenshot ? "Submit Payment Receipt" : "Upload Receipt to Continue"}
@@ -543,6 +550,42 @@ export default function OrderFlow() {
         </div>
       </div>
       <Footer />
+
+      {/* Success Modal */}
+      <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+        <DialogContent className="sm:max-w-md text-center p-8">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mb-2">
+              <CheckCircle2 size={48} className="text-green-500 animate-in zoom-in duration-500" />
+            </div>
+            <DialogHeader className="text-center sm:text-center">
+              <DialogTitle className="text-2xl font-bold font-display text-foreground">
+                Payment Receipt Submitted!
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground pt-2 text-base leading-relaxed">
+                Thank you for your payment. Your order is now being processed.
+                <br />
+                <span className="font-semibold text-primary block mt-4">
+                  Kindly note: Admin will review your payment and you will get notifications through WhatsApp and email for further details.
+                </span>
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          <DialogFooter className="sm:justify-center mt-6">
+            <Button 
+              className="w-full sm:w-48 bg-gradient-gold text-primary-foreground font-bold h-12 shadow-lg hover:opacity-90 transition-all"
+              onClick={() => {
+                setShowSuccessModal(false);
+                store.reset();
+                setStep(0);
+                navigate("/");
+              }}
+            >
+              Okay
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

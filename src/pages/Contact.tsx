@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Reveal } from "@/components/Reveal";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -24,7 +25,7 @@ export default function Contact() {
     <div className="min-h-screen">
       <Navbar />
       <div className="pt-24 pb-20">
-        <div className="container max-w-lg">
+        <Reveal className="container max-w-lg" width="100%">
           <h1 className="font-display text-4xl font-bold text-foreground text-center mb-2">Contact Us</h1>
           <p className="text-muted-foreground text-center mb-8">We'd love to hear from you</p>
 
@@ -43,7 +44,7 @@ export default function Contact() {
             </div>
             <Button type="submit" className="w-full bg-gradient-gold text-primary-foreground hover:opacity-90">Send Message</Button>
           </form>
-        </div>
+        </Reveal>
       </div>
       <Footer />
     </div>
