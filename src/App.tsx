@@ -36,6 +36,8 @@ import AdminScripts from "./pages/admin/AdminScripts";
 import AdminPricing from "./pages/admin/AdminPricing";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminSupport from "./pages/admin/AdminSupport";
+import AdminRefunds from "./pages/admin/AdminRefunds";
 import AdminCatalog from "@/pages/admin/AdminCatalog";
 import ScrollToTop from "./components/ScrollToTop";
 import NotFound from "./pages/NotFound";
@@ -92,6 +94,8 @@ const App = () => (
           <Route path="/admin/pricing" element={<AdminPricing />} />
           <Route path="/admin/coupons" element={<AdminCoupons />} />
           <Route path="/admin/analytics" element={<AdminAnalytics />} />
+          <Route path="/admin/support" element={<AdminSupport />} />
+          <Route path="/admin/refunds" element={<AdminRefunds />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>

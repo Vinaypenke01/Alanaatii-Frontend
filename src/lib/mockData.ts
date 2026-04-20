@@ -21,8 +21,11 @@ export interface ScriptWriter {
   id: string;
   name: string;
   email: string;
+  phone?: string;
+  languages?: string[];
   password?: string;
   status: "active" | "inactive";
+  createdById?: string;
 }
 
 export interface Order {
@@ -46,7 +49,14 @@ export interface Order {
   scriptApproved?: boolean;
   assignedWriterId?: string;
   revisionFeedback?: string;
-  scriptVersions?: { version: number; content: string; date: string }[];
+  scriptVersions?: { version: number; content: string; date: string; writerId?: string; createdById?: string }[];
+  messageContent: string;
+  specialNotes?: string;
+  trackingId?: string;
+  courierName?: string;
+  shippedAt?: string;
+  estArrival?: string;
+  createdById?: string;
   userAnswers?: { question: string; answer: string }[];
   tone?: string;
   // Script-only fields
@@ -106,6 +116,7 @@ export interface Coupon {
   code: string;
   discount: number;
   active: boolean;
+  createdById?: string;
 }
 
 export interface AdminLetter {
@@ -113,12 +124,14 @@ export interface AdminLetter {
   title: string;
   price: number;
   description: string;
+  createdById?: string;
 }
 
 export interface AdminTextStyle {
   id: string;
   title: string;
   price: number;
+  createdById?: string;
 }
 
 export interface AdminBox {
@@ -126,6 +139,7 @@ export interface AdminBox {
   title: string;
   price: number;
   description: string;
+  createdById?: string;
 }
 
 export interface AdminGift {
@@ -133,12 +147,14 @@ export interface AdminGift {
   title: string;
   price: number;
   description: string;
+  createdById?: string;
 }
 
 export interface AdminQuestion {
   id: string;
   relation: string;
   question: string;
+  createdById?: string;
 }
 
 export interface AdminScriptPackage {
@@ -146,6 +162,7 @@ export interface AdminScriptPackage {
   title: string;
   price: number;
   description: string;
+  createdById?: string;
 }
 
 export interface AdminLetterPaper {
@@ -153,12 +170,43 @@ export interface AdminLetterPaper {
   title: string;
   price: number;
   description: string;
+  createdById?: string;
+}
+
+export interface SupportInquiry {
+  id: string;
+  name: string;
+  email: string;
+  message: string;
+  status: "new" | "read" | "responded";
+  createdAt: string;
+}
+
+export interface Refund {
+  id: string;
+  orderId: string;
+  amount: number;
+  reason: string;
+  status: "pending" | "completed";
+  createdAt: string;
+  processedAt?: string;
+}
+
+export interface UserAddress {
+  id: string;
+  label: string;
+  receiverName: string;
+  phone: string;
+  address: string;
+  city: string;
+  pincode: string;
+  isPrimary: boolean;
 }
 
 export const mockWriters: ScriptWriter[] = [
-  { id: "w1", name: "Priya Sharma", email: "priya@alanaatii.com", status: "active" },
-  { id: "w2", name: "Arun Kumar", email: "arun@alanaatii.com", status: "active" },
-  { id: "w3", name: "Sneha Reddy", email: "sneha@alanaatii.com", status: "inactive" },
+  { id: "w1", name: "Priya Sharma", email: "priya@alanaatii.com", phone: "9876543210", languages: ["English", "Telugu", "Hindi"], status: "active" },
+  { id: "w2", name: "Arun Kumar", email: "arun@alanaatii.com", phone: "9876543211", languages: ["English", "Telugu"], status: "active" },
+  { id: "w3", name: "Sneha Reddy", email: "sneha@alanaatii.com", phone: "9876543212", languages: ["Telugu", "English"], status: "inactive" },
 ];
 
 export const mockOrders: Order[] = [
@@ -180,6 +228,7 @@ export const mockOrders: Order[] = [
     createdAt: "2026-04-05",
     assignedWriterId: "w1",
     tone: "Romantic & Poetic",
+    messageContent: "Meera is my world. We met in college and she has been my strength ever since. I want to tell her how much I appreciate her being in my life.",
     scriptContent: "Dearest Meera,\n\nEvery moment with you feels like a beautiful dream that I never want to wake up from. Your smile lights up my world in ways words can barely capture...\n\nWith all my love,\nYours forever",
     scriptApproved: false,
     scriptVersions: [
@@ -208,6 +257,7 @@ export const mockOrders: Order[] = [
     createdAt: "2026-03-20",
     assignedWriterId: "w2",
     tone: "Fun & Casual",
+    messageContent: "Ravi is my best friend. We've been through a lot together. It's his 25th birthday and I want to wish him a great year ahead.",
     scriptApproved: true,
     scriptContent: "Hey Ravi! 🎉\n\nAnother year older, another year wiser...",
     scriptVersions: [{ version: 1, content: "Hey Ravi! 🎉\n\nAnother year older...", date: "2026-03-25" }],
@@ -231,6 +281,7 @@ export const mockOrders: Order[] = [
     createdAt: "2026-04-08",
     assignedWriterId: "w1",
     tone: "Warm & Heartfelt",
+    messageContent: "Anu has been like a sister to me. She's moving away for a new job and I want to send her a box of letters she can read whenever she misses home.",
     userAnswers: [{ question: "How did you meet?", answer: "We grew up as neighbors." }],
   },
   {
@@ -251,6 +302,7 @@ export const mockOrders: Order[] = [
     createdAt: "2026-04-10",
     assignedWriterId: "w2",
     tone: "Romantic & Deep",
+    messageContent: "Kavya loves poetry. I want a script that is deep and expressive about our bond.",
     scriptPackage: "Premium Script",
     expressScript: true,
     userAnswers: [
@@ -273,6 +325,7 @@ export const mockOrders: Order[] = [
     city: "Delhi",
     pincode: "110001",
     createdAt: "2026-04-07",
+    messageContent: "Ordering floral paper for my own writing projects.",
     paperType: "Floral Paper",
     paperQuantity: 2,
   },
@@ -293,6 +346,7 @@ export const mockOrders: Order[] = [
     city: "Hyderabad",
     pincode: "500034",
     createdAt: "2026-04-14",
+    messageContent: "Our 5th anniversary. I want to surprise Aditi with a luxury box and flowers.",
     tone: "Romantic"
   },
   {
@@ -312,6 +366,7 @@ export const mockOrders: Order[] = [
     city: "",
     pincode: "",
     createdAt: "2026-04-14",
+    messageContent: "Had a fight with my brother. Need a sincere apology script.",
     tone: "Sincere"
   },
   {
@@ -331,6 +386,7 @@ export const mockOrders: Order[] = [
     city: "Bangalore",
     pincode: "560038",
     createdAt: "2026-04-15",
+    messageContent: "So proud of my son graduating from engineering.",
     tone: "Proud & Encouraging"
   },
   {
@@ -350,6 +406,7 @@ export const mockOrders: Order[] = [
     city: "Chennai",
     pincode: "600040",
     createdAt: "2026-04-15",
+    messageContent: "Dr. Lakshmi has been an incredible mentor during my residency.",
     tone: "Respectful"
   },
   {
@@ -368,6 +425,7 @@ export const mockOrders: Order[] = [
     city: "Gurgaon",
     pincode: "122017",
     createdAt: "2026-04-12",
+    messageContent: "Appreciating Vikram's hard work this quarter.",
     assignedWriterId: undefined,
     rejectedByWriterId: "w2",
     rejectionReason: "Language barrier - customer requested Telugu content specifically.",
@@ -389,6 +447,7 @@ export const mockOrders: Order[] = [
     city: "",
     pincode: "",
     createdAt: "2026-04-13",
+    messageContent: "Losing a loved one is hard. Need a somber script for our friend's family.",
     assignedWriterId: undefined,
     rejectedByWriterId: "w1",
     rejectionReason: "Personal reasons - cannot write emotional content today.",
@@ -463,6 +522,17 @@ export const productTypeLabels: Record<ProductType, string> = {
   letterBox: "Letter + Box",
   letterBoxGift: "Letter + Box + Gift",
 };
+
+export const mockInquiries: SupportInquiry[] = [
+  { id: "INQ-001", name: "Rahul Verma", email: "rahul@example.com", message: "Hi, I ordered a premium box gift set but I want to change the delivery date. Can you help?", status: "new", createdAt: "2026-04-18T10:30:00Z" },
+  { id: "INQ-002", name: "Sita Ram", email: "sita@example.com", message: "Do you offer same-day delivery in Hyderabad?", status: "read", createdAt: "2026-04-17T14:45:00Z" },
+  { id: "INQ-003", name: "Vikram Singh", email: "vikram@example.com", message: "The letter I received was slightly torn. I'd like a refund or replacement.", status: "responded", createdAt: "2026-04-15T09:12:00Z" },
+];
+
+export const mockRefunds: Refund[] = [
+  { id: "REF-001", orderId: "ORD-123456", amount: 499, reason: "Customer changed mind", status: "completed", createdAt: "2026-04-10T10:00:00Z", processedAt: "2026-04-11T12:00:00Z" },
+  { id: "REF-002", orderId: "ORD-789012", amount: 1200, reason: "Product damaged during shipping", status: "pending", createdAt: "2026-04-19T15:30:00Z" },
+];
 
 export function getWriterById(id: string): ScriptWriter | undefined {
   return mockWriters.find((w) => w.id === id);

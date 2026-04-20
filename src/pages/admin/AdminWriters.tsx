@@ -22,29 +22,61 @@ import { cn } from "@/lib/utils";
 export default function AdminWriters() {
   const [writers, setWriters] = useState<ScriptWriter[]>(mockWriters);
   const [editing, setEditing] = useState<ScriptWriter | null>(null);
-  const [form, setForm] = useState({ name: "", email: "", password: "", status: "active" as "active" | "inactive" });
+  const [form, setForm] = useState({ 
+    name: "", 
+    email: "", 
+    password: "", 
+    phone: "", 
+    phoneSecondary: "",
+    address: "",
+    languages: "", 
+    status: "active" as "active" | "inactive" 
+  });
 
   const openNew = () => {
     setEditing(null);
-    setForm({ name: "", email: "", password: "", status: "active" });
+    setForm({ 
+      name: "", 
+      email: "", 
+      password: "", 
+      phone: "", 
+      phoneSecondary: "",
+      address: "",
+      languages: "", 
+      status: "active" 
+    });
   };
 
   const openEdit = (w: ScriptWriter) => {
     setEditing(w);
-    setForm({ name: w.name, email: w.email, password: w.password || "", status: w.status });
+    setForm({ 
+      name: w.name, 
+      email: w.email, 
+      password: w.password || "", 
+      phone: w.phone || "", 
+      phoneSecondary: (w as any).phoneSecondary || "",
+      address: (w as any).address || "",
+      languages: w.languages?.join(", ") || "", 
+      status: w.status 
+    });
   };
 
   const save = () => {
     if (!form.name || !form.email) { toast.error("Name and email are required"); return; }
+    
+    const writerData: Partial<ScriptWriter> = {
+      ...form,
+      languages: form.languages.split(",").map(l => l.trim()).filter(l => l !== "")
+    };
+
     if (editing) {
-      setWriters((prev) => prev.map((w) => w.id === editing.id ? { ...w, ...form } : w));
+      setWriters((prev) => prev.map((w) => w.id === editing.id ? { ...w, ...writerData } as ScriptWriter : w));
       toast.success("Writer updated");
     } else {
-      setWriters((prev) => [...prev, { id: `w${Date.now()}`, ...form }]);
+      setWriters((prev) => [...prev, { id: `w${Date.now()}`, ...writerData } as ScriptWriter]);
       toast.success("Writer added");
     }
-    setForm({ name: "", email: "", password: "", status: "active" });
-    setEditing(null);
+    openNew();
   };
 
   const remove = (id: string) => {
@@ -64,10 +96,18 @@ export default function AdminWriters() {
              <h3 className="font-display text-lg font-bold text-foreground">{editing ? "Update Writer Credentials" : "Onboard New Writer"}</h3>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-5">
             <div className="space-y-1.5"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Full Name</label><Input placeholder="John Doe" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className="bg-muted/30 border-none h-11" /></div>
             <div className="space-y-1.5"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Email Address</label><Input placeholder="john@example.com" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} className="bg-muted/30 border-none h-11" /></div>
+            <div className="space-y-1.5"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Phone Number</label><Input placeholder="9876543210" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className="bg-muted/30 border-none h-11" /></div>
             <div className="space-y-1.5"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Initial Password</label><Input placeholder="••••••••" type="password" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} className="bg-muted/30 border-none h-11" /></div>
+            
+            <div className="space-y-1.5 lg:col-span-1"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Secondary Phone</label><Input placeholder="Optional" value={form.phoneSecondary} onChange={(e) => setForm((f) => ({ ...f, phoneSecondary: e.target.value }))} className="bg-muted/30 border-none h-11" /></div>
+            
+            <div className="space-y-1.5 lg:col-span-2"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Languages (comma separated)</label><Input placeholder="English, Telugu, Hindi" value={form.languages} onChange={(e) => setForm((f) => ({ ...f, languages: e.target.value }))} className="bg-muted/30 border-none h-11" /></div>
+            
+            <div className="space-y-1.5 lg:col-span-2"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Resident Address</label><Input placeholder="Enter residential address" value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} className="bg-muted/30 border-none h-11" /></div>
+
             <div className="space-y-1.5"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Writer Status</label>
               <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as "active" | "inactive" }))}>
                 <SelectTrigger className="bg-muted/30 border-none h-11"><SelectValue /></SelectTrigger>
@@ -111,13 +151,22 @@ export default function AdminWriters() {
                 </div>
               </div>
               <div className="flex items-center justify-between pt-3 border-t">
-                 <span className={cn(
-                   "text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border",
-                   w.status === "active" ? "bg-green-50 text-green-700 border-green-200" : "bg-muted text-muted-foreground border-border"
-                 )}>
-                   {w.status === "active" ? "Online" : "Away"}
-                 </span>
-                 <p className="text-[10px] text-muted-foreground underline cursor-pointer hover:text-primary transition-colors">View Assignments</p>
+                 <div className="flex flex-col gap-1">
+                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Skills</p>
+                    <div className="flex flex-wrap gap-1">
+                       {w.languages?.map(l => (
+                          <span key={l} className="text-[8px] bg-primary/5 text-primary border border-primary/10 px-1.5 py-0.5 rounded font-bold uppercase">{l}</span>
+                       ))}
+                    </div>
+                 </div>
+                 <div className="text-right">
+                    <span className={cn(
+                      "text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border inline-block",
+                      w.status === "active" ? "bg-green-50 text-green-700 border-green-200" : "bg-muted text-muted-foreground border-border"
+                    )}>
+                      {w.status === "active" ? "Online" : "Away"}
+                    </span>
+                 </div>
               </div>
             </div>
           ))}
@@ -132,7 +181,7 @@ export default function AdminWriters() {
             <thead>
               <tr className="border-b bg-muted/30">
                 <th className="text-left p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Writer Profile</th>
-                <th className="text-left p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Contact Info</th>
+                <th className="text-left p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Languages</th>
                 <th className="text-left p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Availability</th>
                 <th className="text-right p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Actions</th>
               </tr>
@@ -141,14 +190,19 @@ export default function AdminWriters() {
               {writers.map((w) => (
                 <tr key={w.id} className="border-b last:border-0 hover:bg-muted/10 transition-colors">
                   <td className="p-4">
-                    <div className="flex items-center gap-3">
-                       <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase">
-                          {w.name.charAt(0)}
-                       </div>
+                    <div className="flex flex-col">
                        <span className="font-bold text-foreground">{w.name}</span>
+                       <span className="text-[11px] text-muted-foreground">{w.email}</span>
+                       <span className="text-[10px] text-primary/70 font-mono mt-0.5">{w.phone}</span>
                     </div>
                   </td>
-                  <td className="p-4 text-muted-foreground font-medium">{w.email}</td>
+                  <td className="p-4">
+                     <div className="flex flex-wrap gap-1 max-w-[200px]">
+                        {w.languages?.map(l => (
+                           <span key={l} className="text-[9px] bg-primary/5 text-primary border border-primary/10 px-2 py-0.5 rounded font-bold uppercase">{l}</span>
+                        ))}
+                     </div>
+                  </td>
                   <td className="p-4">
                     <span className={cn(
                       "text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-widest border",

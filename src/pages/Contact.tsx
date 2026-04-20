@@ -17,7 +17,7 @@ export default function Contact() {
       toast.error("Please fill in all fields");
       return;
     }
-    toast.success("Message sent! We'll get back to you soon.");
+    toast.success("Message sent! Your inquiry has been logged in our support desk.");
     setForm({ name: "", email: "", message: "" });
   };
 
