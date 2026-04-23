@@ -26,6 +26,12 @@ export interface OrderState {
   pincode: string;
   paymentScreenshot: string | null;
   appliedCoupon: string | null;
+  // Customer Details
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  recipientPhone: string;
+  primaryContact: "sender" | "recipient";
   // Helpers
   setStep: (s: number) => void;
   setField: (key: string, value: any) => void;
@@ -53,6 +59,11 @@ const initial = {
   pincode: "",
   paymentScreenshot: null,
   appliedCoupon: null,
+  customerName: "",
+  customerPhone: "",
+  customerEmail: "",
+  recipientPhone: "",
+  primaryContact: "sender",
 };
 
 export const useOrderStore = create<OrderState>((set) => ({

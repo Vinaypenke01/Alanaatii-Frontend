@@ -31,8 +31,30 @@ export default function AdminOrders() {
                 <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded border border-primary/10 uppercase tracking-tighter">
                   {o.id}
                 </span>
-                <h3 className="font-bold text-foreground mt-1">{o.recipientName}</h3>
-                <p className="text-xs text-muted-foreground">{o.letterType}</p>
+                <div className="mt-2 pt-2 border-t border-dashed">
+                  <div className="flex justify-between">
+                    <div>
+                      <p className="text-[9px] uppercase text-muted-foreground font-bold tracking-wider">Recipient Contact</p>
+                      <p className="text-[11px] font-bold text-foreground">{o.recipientName}</p>
+                      <p className="text-[10px] text-muted-foreground">{o.recipientPhone}</p>
+                    </div>
+                    {o.primaryContact === "recipient" && (
+                      <span className="text-[8px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-black h-fit">PRIMARY</span>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-2 pt-2 border-t border-dashed">
+                  <div className="flex justify-between">
+                    <div>
+                      <p className="text-[9px] uppercase text-muted-foreground font-bold tracking-wider">Ordered By (Sender)</p>
+                      <p className="text-[11px] font-bold text-foreground">{o.customerName}</p>
+                      <p className="text-[10px] text-muted-foreground">{o.customerPhone}</p>
+                    </div>
+                    {o.primaryContact === "sender" && (
+                      <span className="text-[8px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-black h-fit uppercase">PRIMARY</span>
+                    )}
+                  </div>
+                </div>
               </div>
               <p className="text-lg font-black text-primary">₹{o.total}</p>
             </div>
@@ -71,8 +93,9 @@ export default function AdminOrders() {
               <tr className="border-b bg-muted/30">
                 <th className="text-left p-4 p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Order ID</th>
                 <th className="text-left p-4 p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Letter</th>
-                <th className="text-left p-4 p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Recipient</th>
-                <th className="text-left p-4 p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Total</th>
+                <th className="text-left p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Recipient</th>
+                <th className="text-left p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Sender (Customer)</th>
+                <th className="text-left p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Total</th>
                 <th className="text-left p-4 p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Writer</th>
                 <th className="text-left p-4 p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Status</th>
               </tr>
@@ -82,7 +105,24 @@ export default function AdminOrders() {
                 <tr key={o.id} className="border-b last:border-0 hover:bg-muted/10 transition-colors">
                   <td className="p-4 font-mono font-bold text-foreground">{o.id}</td>
                   <td className="p-4 text-muted-foreground font-medium">{o.letterType}</td>
-                  <td className="p-4 text-muted-foreground font-medium">{o.recipientName}</td>
+                  <td className="p-4">
+                    <div className="flex flex-col">
+                      <span className="font-bold text-foreground">{o.recipientName}</span>
+                      <span className="text-[11px] text-muted-foreground">{o.recipientPhone}</span>
+                      {o.primaryContact === "recipient" && (
+                        <span className="text-[9px] text-green-600 font-black mt-1">PRIMARY CONTACT</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex flex-col">
+                      <span className="font-bold text-foreground">{o.customerName}</span>
+                      <span className="text-[11px] text-muted-foreground">{o.customerPhone}</span>
+                      {o.primaryContact === "sender" && (
+                        <span className="text-[9px] text-blue-600 font-black mt-1 uppercase">Primary Contact</span>
+                      )}
+                    </div>
+                  </td>
                   <td className="p-4 text-primary font-black">₹{o.total}</td>
                   <td className="p-4">
                     <Select value={o.assignedWriterId ?? ""} onValueChange={(v) => assignWriter(o.id, v)}>

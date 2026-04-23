@@ -244,7 +244,7 @@ export default function UserOrderDetail() {
                 <h3 className="font-display text-lg font-bold text-foreground border-b pb-3 mb-2">Order Info</h3>
                 <div className="space-y-3">
                   <DetailRow label="Product" value={productTypeLabels[order.productType]} />
-                  <DetailRow label="Recipient" value={order.recipientName} />
+                  <DetailRow label="Recipient" value={`${order.recipientName} (${order.recipientPhone || "N/A"})`} />
                   <DetailRow label="Total Value" value={`₹${order.total}`} highlight />
                 </div>
               </div>
@@ -277,6 +277,28 @@ export default function UserOrderDetail() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-1">
+            <div className="md:col-span-2 mb-2 pb-2 border-b">
+               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Sender (You)</p>
+               <div className="flex flex-col sm:flex-row sm:gap-6">
+                 <p className="text-sm font-bold text-foreground">Name: <span className="font-medium text-muted-foreground">{order.customerName}</span></p>
+                 <p className="text-sm font-bold text-foreground">Phone: <span className="font-medium text-muted-foreground">{order.customerPhone}</span></p>
+                 <p className="text-sm font-bold text-foreground">Email: <span className="font-medium text-muted-foreground">{order.customerEmail}</span></p>
+               </div>
+               {order.primaryContact === "sender" && (
+                 <p className="mt-1 text-[10px] text-primary font-black uppercase tracking-widest">★ Primary Delivery Contact</p>
+               )}
+            </div>
+            <div className="md:col-span-2 mb-2 pb-2 border-b">
+               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Recipient Details</p>
+               <div className="flex flex-col sm:flex-row sm:gap-6">
+                 <p className="text-sm font-bold text-foreground">Name: <span className="font-medium text-muted-foreground">{order.recipientName}</span></p>
+                 <p className="text-sm font-bold text-foreground">Phone: <span className="font-medium text-muted-foreground">{order.recipientPhone || "N/A"}</span></p>
+                 <p className="text-sm font-bold text-foreground">Relation: <span className="font-medium text-muted-foreground">{order.relation}</span></p>
+               </div>
+               {order.primaryContact === "recipient" && (
+                 <p className="mt-1 text-[10px] text-green-600 font-black uppercase tracking-widest">★ Primary Delivery Contact</p>
+               )}
+            </div>
             <DetailRow label="Category" value={order.letterType || "Standard"} />
             <DetailRow label="Calligraphy Style" value={order.textStyle || "Handwritten"} />
             {order.box && <DetailRow label="Packaging" value={order.box} />}

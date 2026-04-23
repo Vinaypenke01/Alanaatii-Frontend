@@ -121,7 +121,7 @@ export default function OrderFlow() {
       case "Style & Date": return !!store.textStyleId && !!store.deliveryDate;
       case "Box": return !!store.boxId;
       case "Gift": return !!store.giftId;
-      case "Details": return !!store.relation && !!store.recipientName && !!store.messageContent;
+      case "Details": return !!store.relation && !!store.recipientName && !!store.recipientPhone && !!store.messageContent && !!store.customerName && !!store.customerPhone && !!store.customerEmail && !!store.primaryContact;
       case "Delivery": return !!store.address && !!store.city && store.pincode.length >= 6;
       default: return true;
     }
@@ -290,27 +290,81 @@ export default function OrderFlow() {
       case "Details":
         return (
           <div className="space-y-5">
-            <h2 className="font-display text-2xl font-bold text-foreground">Tell Us More</h2>
-            <div>
-              <Label>Relation</Label>
-              <Select value={store.relation ?? ""} onValueChange={(v) => setField("relation", v)}>
-                <SelectTrigger><SelectValue placeholder="Select relation" /></SelectTrigger>
-                <SelectContent>
-                  {relations.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
-                </SelectContent>
-              </Select>
+            <h2 className="font-display text-2xl font-bold text-foreground">Your Details</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Your Name</Label>
+                <Input value={store.customerName} onChange={(e) => setField("customerName", e.target.value)} placeholder="Enter your full name" />
+              </div>
+              <div>
+                <Label>Your Phone / WhatsApp</Label>
+                <Input value={store.customerPhone} onChange={(e) => setField("customerPhone", e.target.value.replace(/[^\d+]/g, ""))} placeholder="WhatsApp number" />
+              </div>
             </div>
             <div>
-              <Label>Recipient Name</Label>
-              <Input value={store.recipientName} onChange={(e) => setField("recipientName", e.target.value)} placeholder="Their name" />
+              <Label>Your Email</Label>
+              <Input type="email" value={store.customerEmail} onChange={(e) => setField("customerEmail", e.target.value)} placeholder="your@email.com" />
             </div>
-            <div>
-              <Label>Message Content</Label>
-              <Textarea value={store.messageContent} onChange={(e) => setField("messageContent", e.target.value)} placeholder="What would you like to say?" rows={4} />
-            </div>
-            <div>
-              <Label>Special Notes (optional)</Label>
-              <Input value={store.specialNotes} onChange={(e) => setField("specialNotes", e.target.value)} placeholder="Any special requests?" />
+
+            <div className="pt-4 border-t">
+              <h2 className="font-display text-2xl font-bold text-foreground mb-4">Recipient Details</h2>
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Recipient Name</Label>
+                    <Input value={store.recipientName} onChange={(e) => setField("recipientName", e.target.value)} placeholder="Their name" />
+                  </div>
+                  <div>
+                    <Label>Recipient Phone / WhatsApp</Label>
+                    <Input value={store.recipientPhone} onChange={(e) => setField("recipientPhone", e.target.value.replace(/[^\d+]/g, ""))} placeholder="Their number" />
+                  </div>
+                </div>
+                <div>
+                  <Label>Relation</Label>
+                  <Select value={store.relation ?? ""} onValueChange={(v) => setField("relation", v)}>
+                    <SelectTrigger><SelectValue placeholder="Select relation" /></SelectTrigger>
+                    <SelectContent>
+                      {relations.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 space-y-3">
+                  <Label className="text-sm font-bold text-primary flex items-center gap-2">
+                    <CheckCircle2 size={16} /> Primary Contact for Delivery
+                  </Label>
+                  <p className="text-[11px] text-muted-foreground leading-tight">
+                    Who should our delivery partner contact for location details or calls?
+                  </p>
+                  <div className="flex gap-4 pt-1">
+                    <Button 
+                      type="button"
+                      variant={store.primaryContact === "sender" ? "default" : "outline"}
+                      className="flex-1 h-10 text-xs"
+                      onClick={() => setField("primaryContact", "sender")}
+                    >
+                      Me (Sender)
+                    </Button>
+                    <Button 
+                      type="button"
+                      variant={store.primaryContact === "recipient" ? "default" : "outline"}
+                      className="flex-1 h-10 text-xs"
+                      onClick={() => setField("primaryContact", "recipient")}
+                    >
+                      Them (Recipient)
+                    </Button>
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Message Content</Label>
+                  <Textarea value={store.messageContent} onChange={(e) => setField("messageContent", e.target.value)} placeholder="What would you like to say?" rows={4} />
+                </div>
+                <div>
+                  <Label>Special Notes (optional)</Label>
+                  <Input value={store.specialNotes} onChange={(e) => setField("specialNotes", e.target.value)} placeholder="Any special requests?" />
+                </div>
+              </div>
             </div>
           </div>
         );
@@ -367,7 +421,6 @@ export default function OrderFlow() {
                   {store.appliedCoupon && (
                     <span className="text-xs text-muted-foreground line-through mr-2 font-normal">
                       ₹{
-                        // Calculate total without coupon for display
                         (() => {
                           let t = 0;
                           if (productType === "script") {
@@ -416,11 +469,23 @@ export default function OrderFlow() {
               )}
             </div>
             {store.recipientName && (
-              <div className="bg-muted rounded-lg p-4 text-sm text-muted-foreground space-y-1">
-                <p><strong>To:</strong> {store.recipientName}</p>
-                {store.relation && <p><strong>Relation:</strong> {store.relation}</p>}
-                {needsDelivery && store.address && <p><strong>Delivery:</strong> {store.address}, {store.city} - {store.pincode}</p>}
-                {store.deliveryDate && <p><strong>Date:</strong> {format(store.deliveryDate, "PPP")}</p>}
+              <div className="bg-muted rounded-lg p-4 text-sm text-muted-foreground space-y-2">
+                <div className="border-b pb-2 mb-2">
+                  <p className="font-semibold text-foreground mb-1 uppercase text-[10px] tracking-wider">Sender (You)</p>
+                  <p><strong>Name:</strong> {store.customerName}</p>
+                  <p><strong>Phone:</strong> {store.customerPhone}</p>
+                  <p><strong>Email:</strong> {store.customerEmail}</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground mb-1 uppercase text-[10px] tracking-wider">Recipient</p>
+                  <p><strong>To:</strong> {store.recipientName} ({store.recipientPhone})</p>
+                  {store.relation && <p><strong>Relation:</strong> {store.relation}</p>}
+                  <p className="mt-2 text-[10px] bg-primary/10 text-primary px-2 py-1 rounded-full inline-block font-bold">
+                    Primary Contact: {store.primaryContact === "sender" ? "Sender (Me)" : "Recipient (Them)"}
+                  </p>
+                  {needsDelivery && store.address && <p className="mt-2"><strong>Delivery:</strong> {store.address}, {store.city} - {store.pincode}</p>}
+                  {store.deliveryDate && <p><strong>Date:</strong> {format(store.deliveryDate, "PPP")}</p>}
+                </div>
               </div>
             )}
           </div>

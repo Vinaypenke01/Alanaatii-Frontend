@@ -18,7 +18,12 @@ Stores all customer orders for scripts, letters, and gift sets.
 | `status` | `ENUM` | DEFAULT 'pending'| Lifecycle state (see Order Status section) |
 | `total_amount` | `DECIMAL(10,2)` | NOT NULL | Final calculated price in ₹ |
 | `delivery_date` | `DATE` | NOT NULL | Customer preferred delivery date |
+| `customer_name` | `VARCHAR(100)` | NOT NULL | Name of the person ordering (Sender) |
+| `customer_phone`| `VARCHAR(20)` | NOT NULL | Phone/WhatsApp of the sender |
+| `customer_email`| `VARCHAR(150)` | NOT NULL | Email of the sender |
 | `recipient_name`| `VARCHAR(100)` | NOT NULL | Name of the letter recipient |
+| `recipient_phone`| `VARCHAR(20)` | NOT NULL | Phone number of the recipient |
+| `primary_contact`| `ENUM` | NOT NULL | Who to contact for delivery (`sender` or `recipient`) |
 | `relation` | `VARCHAR(50)` | NOT NULL | Relationship to the sender |
 | `message_content`| `TEXT` | NOT NULL | Customer's raw instructions/story |
 | `special_notes` | `TEXT` | NULLABLE | Custom requests for the writer |

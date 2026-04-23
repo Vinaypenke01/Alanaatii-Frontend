@@ -37,6 +37,11 @@ export interface Order {
   gift: string | null;
   recipientName: string;
   relation: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  recipientPhone: string;
+  primaryContact: "sender" | "recipient";
   status: OrderStatus;
   total: number;
   paymentScreenshot?: string;
@@ -219,6 +224,9 @@ export const mockOrders: Order[] = [
     gift: "Teddy Bear",
     recipientName: "Meera",
     relation: "Lover",
+    customerName: "Aryan Khan",
+    customerPhone: "9988776655",
+    customerEmail: "aryan@example.com",
     status: "customer_review",
     total: 1300,
     deliveryDate: "2026-05-01",
@@ -234,6 +242,8 @@ export const mockOrders: Order[] = [
     scriptVersions: [
       { version: 1, content: "Dearest Meera,\n\nEvery moment with you feels like a beautiful dream...", date: "2026-04-08" },
     ],
+    recipientPhone: "9876543210",
+    primaryContact: "sender",
     userAnswers: [
       { question: "What is your favorite memory together?", answer: "Our first trip to Goa, watching the sunset on the beach." },
       { question: "What do you love most about them?", answer: "Her infectious laugh and the way she cares for everyone around her." },
@@ -248,6 +258,9 @@ export const mockOrders: Order[] = [
     gift: null,
     recipientName: "Ravi",
     relation: "Friend",
+    customerName: "Karthik Reddy",
+    customerPhone: "9876500001",
+    customerEmail: "karthik@example.com",
     status: "delivered",
     total: 600,
     deliveryDate: "2026-04-02",
@@ -261,6 +274,8 @@ export const mockOrders: Order[] = [
     scriptApproved: true,
     scriptContent: "Hey Ravi! 🎉\n\nAnother year older, another year wiser...",
     scriptVersions: [{ version: 1, content: "Hey Ravi! 🎉\n\nAnother year older...", date: "2026-03-25" }],
+    recipientPhone: "9876543210",
+    primaryContact: "sender",
     userAnswers: [{ question: "How did you meet?", answer: "We were college roommates in first year." }],
   },
   {
@@ -272,6 +287,9 @@ export const mockOrders: Order[] = [
     gift: null,
     recipientName: "Anu",
     relation: "Friend",
+    customerName: "Sneha Rao",
+    customerPhone: "9876500002",
+    customerEmail: "sneha.r@example.com",
     status: "assigned_to_writer",
     total: 1400,
     deliveryDate: "2026-05-15",
@@ -282,6 +300,8 @@ export const mockOrders: Order[] = [
     assignedWriterId: "w1",
     tone: "Warm & Heartfelt",
     messageContent: "Anu has been like a sister to me. She's moving away for a new job and I want to send her a box of letters she can read whenever she misses home.",
+    recipientPhone: "9876543210",
+    primaryContact: "sender",
     userAnswers: [{ question: "How did you meet?", answer: "We grew up as neighbors." }],
   },
   {
@@ -293,6 +313,9 @@ export const mockOrders: Order[] = [
     gift: null,
     recipientName: "Kavya",
     relation: "Lover",
+    customerName: "Vivek Oberoi",
+    customerPhone: "9876500003",
+    customerEmail: "vivek@example.com",
     status: "script_in_progress",
     total: 450,
     deliveryDate: "",
@@ -305,6 +328,8 @@ export const mockOrders: Order[] = [
     messageContent: "Kavya loves poetry. I want a script that is deep and expressive about our bond.",
     scriptPackage: "Premium Script",
     expressScript: true,
+    recipientPhone: "9876543210",
+    primaryContact: "sender",
     userAnswers: [
       { question: "What is your favorite memory together?", answer: "The surprise birthday party she threw for me." },
     ],
@@ -318,6 +343,9 @@ export const mockOrders: Order[] = [
     gift: null,
     recipientName: "Self",
     relation: "Other",
+    customerName: "Pooja Hegde",
+    customerPhone: "9876500004",
+    customerEmail: "pooja@example.com",
     status: "out_for_delivery",
     total: 410,
     deliveryDate: "2026-05-10",
@@ -326,6 +354,8 @@ export const mockOrders: Order[] = [
     pincode: "110001",
     createdAt: "2026-04-07",
     messageContent: "Ordering floral paper for my own writing projects.",
+    recipientPhone: "9876543210",
+    primaryContact: "sender",
     paperType: "Floral Paper",
     paperQuantity: 2,
   },
@@ -338,6 +368,9 @@ export const mockOrders: Order[] = [
     gift: "Flower Combo",
     recipientName: "Aditi",
     relation: "Wife",
+    customerName: "Manish Malhotra",
+    customerPhone: "9876500005",
+    customerEmail: "manish@example.com",
     status: "payment_pending",
     total: 1850,
     paymentScreenshot: "https://images.unsplash.com/photo-1580519542036-c47de6196ba5?auto=format&fit=crop&q=80&w=300&h=400",
@@ -347,6 +380,8 @@ export const mockOrders: Order[] = [
     pincode: "500034",
     createdAt: "2026-04-14",
     messageContent: "Our 5th anniversary. I want to surprise Aditi with a luxury box and flowers.",
+    recipientPhone: "9876543210",
+    primaryContact: "sender",
     tone: "Romantic"
   },
   {
@@ -358,6 +393,9 @@ export const mockOrders: Order[] = [
     gift: null,
     recipientName: "Rahul",
     relation: "Brother",
+    customerName: "Sameer Verma",
+    customerPhone: "9876500006",
+    customerEmail: "sameer@example.com",
     status: "payment_pending",
     total: 350,
     paymentScreenshot: "https://images.unsplash.com/photo-1627163439134-7a8c47e08238?auto=format&fit=crop&q=80&w=300&h=400",
@@ -367,6 +405,8 @@ export const mockOrders: Order[] = [
     pincode: "",
     createdAt: "2026-04-14",
     messageContent: "Had a fight with my brother. Need a sincere apology script.",
+    recipientPhone: "9876543210",
+    primaryContact: "sender",
     tone: "Sincere"
   },
   {
@@ -378,6 +418,9 @@ export const mockOrders: Order[] = [
     gift: null,
     recipientName: "Siddharth",
     relation: "Son",
+    customerName: "Sunil Gavaskar",
+    customerPhone: "9876500007",
+    customerEmail: "sunil@example.com",
     status: "payment_pending",
     total: 550,
     paymentScreenshot: "https://images.unsplash.com/photo-1554224155-1696413565d3?auto=format&fit=crop&q=80&w=300&h=400",
@@ -387,6 +430,8 @@ export const mockOrders: Order[] = [
     pincode: "560038",
     createdAt: "2026-04-15",
     messageContent: "So proud of my son graduating from engineering.",
+    recipientPhone: "9876543210",
+    primaryContact: "sender",
     tone: "Proud & Encouraging"
   },
   {
@@ -398,6 +443,9 @@ export const mockOrders: Order[] = [
     gift: null,
     recipientName: "Dr. Lakshmi",
     relation: "Mentor",
+    customerName: "Anjali Devi",
+    customerPhone: "9876500008",
+    customerEmail: "anjali@example.com",
     status: "payment_pending",
     total: 1100,
     paymentScreenshot: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=300&h=400",
@@ -407,6 +455,8 @@ export const mockOrders: Order[] = [
     pincode: "600040",
     createdAt: "2026-04-15",
     messageContent: "Dr. Lakshmi has been an incredible mentor during my residency.",
+    recipientPhone: "9876543210",
+    primaryContact: "sender",
     tone: "Respectful"
   },
   {
@@ -418,6 +468,9 @@ export const mockOrders: Order[] = [
     gift: null,
     recipientName: "Vikram",
     relation: "Employee",
+    customerName: "Harsha Bhogle",
+    customerPhone: "9876500009",
+    customerEmail: "harsha@example.com",
     status: "assignment_rejected" as const,
     total: 450,
     deliveryDate: "2026-05-12",
@@ -429,6 +482,8 @@ export const mockOrders: Order[] = [
     assignedWriterId: undefined,
     rejectedByWriterId: "w2",
     rejectionReason: "Language barrier - customer requested Telugu content specifically.",
+    recipientPhone: "9876543210",
+    primaryContact: "sender",
     tone: "Professional & Appreciative"
   },
   {
@@ -440,6 +495,9 @@ export const mockOrders: Order[] = [
     gift: null,
     recipientName: "The Family",
     relation: "Friend",
+    customerName: "Sourav Ganguly",
+    customerPhone: "9876500010",
+    customerEmail: "sourav@example.com",
     status: "assignment_rejected" as const,
     total: 350,
     deliveryDate: "",
@@ -451,6 +509,8 @@ export const mockOrders: Order[] = [
     assignedWriterId: undefined,
     rejectedByWriterId: "w1",
     rejectionReason: "Personal reasons - cannot write emotional content today.",
+    recipientPhone: "9876543210",
+    primaryContact: "sender",
     tone: "Sincere & Somber"
   },
 ];
