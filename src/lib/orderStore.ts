@@ -63,7 +63,7 @@ const initial = {
   customerPhone: "",
   customerEmail: "",
   recipientPhone: "",
-  primaryContact: "sender",
+  primaryContact: "sender" as "sender" | "recipient",
 };
 
 export const useOrderStore = create<OrderState>((set) => ({

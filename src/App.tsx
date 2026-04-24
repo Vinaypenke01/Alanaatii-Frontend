@@ -39,6 +39,7 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSupport from "./pages/admin/AdminSupport";
 import AdminRefunds from "./pages/admin/AdminRefunds";
 import AdminCatalog from "@/pages/admin/AdminCatalog";
+import WriterProfile from "./pages/writer/WriterProfile";
 import ScrollToTop from "./components/ScrollToTop";
 import NotFound from "./pages/NotFound";
 import SubmitReview from "./pages/SubmitReview";
@@ -72,6 +73,7 @@ const App = () => (
 
           {/* Script Writer */}
           <Route path="/writer" element={<WriterDashboard />} />
+          <Route path="/writer/profile" element={<WriterProfile />} />
           <Route path="/writer/requests" element={<WriterRequests />} />
           <Route path="/writer/editor" element={<WriterEditor />} />
           <Route path="/writer/revisions" element={<WriterRevisions />} />

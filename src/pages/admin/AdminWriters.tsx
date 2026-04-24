@@ -22,6 +22,8 @@ import { cn } from "@/lib/utils";
 export default function AdminWriters() {
   const [writers, setWriters] = useState<ScriptWriter[]>(mockWriters);
   const [editing, setEditing] = useState<ScriptWriter | null>(null);
+  const [showOtp, setShowOtp] = useState(false);
+  const [otp, setOtp] = useState("");
   const [form, setForm] = useState({ 
     name: "", 
     email: "", 
@@ -45,10 +47,14 @@ export default function AdminWriters() {
       languages: "", 
       status: "active" 
     });
+    setShowOtp(false);
+    setOtp("");
   };
 
   const openEdit = (w: ScriptWriter) => {
     setEditing(w);
+    setShowOtp(false);
+    setOtp("");
     setForm({ 
       name: w.name, 
       email: w.email, 
@@ -64,6 +70,18 @@ export default function AdminWriters() {
   const save = () => {
     if (!form.name || !form.email) { toast.error("Name and email are required"); return; }
     
+    // OTP Flow for new writers
+    if (!editing && !showOtp) {
+      setShowOtp(true);
+      toast.info(`Verification OTP sent to ${form.email}`);
+      return;
+    }
+
+    if (!editing && showOtp && otp.length < 4) {
+      toast.error("Please enter a valid OTP");
+      return;
+    }
+
     const writerData: Partial<ScriptWriter> = {
       ...form,
       languages: form.languages.split(",").map(l => l.trim()).filter(l => l !== "")
@@ -74,7 +92,7 @@ export default function AdminWriters() {
       toast.success("Writer updated");
     } else {
       setWriters((prev) => [...prev, { id: `w${Date.now()}`, ...writerData } as ScriptWriter]);
-      toast.success("Writer added");
+      toast.success("Writer verified and onboarded successfully!");
     }
     openNew();
   };
@@ -119,11 +137,23 @@ export default function AdminWriters() {
             </div>
           </div>
           
+          {showOtp && !editing && (
+            <div className="mt-6 p-5 bg-primary/5 border border-primary/20 rounded-xl max-w-md animate-in fade-in slide-in-from-top-4">
+              <h4 className="font-bold text-primary mb-1">Verify Writer Email</h4>
+              <p className="text-xs text-muted-foreground mb-4">An OTP has been sent to <strong>{form.email}</strong>. Ask the writer for this code to complete their account setup.</p>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Enter Verification Code</label>
+                <Input placeholder="e.g. 123456" value={otp} onChange={(e) => setOtp(e.target.value)} className="bg-white border-primary/20 h-11" />
+              </div>
+            </div>
+          )}
+          
           <div className="flex flex-col sm:flex-row gap-3 mt-6 pt-6 border-t">
             <Button onClick={save} className="bg-gradient-gold text-primary-foreground hover:opacity-90 h-11 flex-1 sm:flex-none px-8 font-bold shadow-lg shadow-primary/10">
-              {editing ? "Save Changes" : "Confirm Onboarding"}
+              {editing ? "Save Changes" : showOtp ? "Verify OTP & Create Writer" : "Confirm Onboarding"}
             </Button>
             {editing && <Button variant="outline" onClick={openNew} className="h-11 flex-1 sm:flex-none px-6">Cancel Edit</Button>}
+            {showOtp && !editing && <Button variant="ghost" onClick={() => setShowOtp(false)} className="h-11 flex-1 sm:flex-none px-6">Cancel</Button>}
           </div>
         </div>
 

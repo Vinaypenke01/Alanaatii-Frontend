@@ -1,5 +1,5 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { LayoutDashboard, FileText, PenLine, RotateCcw, Bell } from "lucide-react";
+import { LayoutDashboard, FileText, PenLine, RotateCcw, Bell, User } from "lucide-react";
 import { mockOrders, statusLabels, getWriterById } from "@/lib/mockData";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -8,6 +8,7 @@ const CURRENT_WRITER_ID = "w1"; // Simulated logged-in writer
 
 const links = [
   { to: "/writer", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/writer/profile", label: "Profile", icon: User },
   { to: "/writer/requests", label: "Script Requests", icon: FileText },
   { to: "/writer/editor", label: "Write Script", icon: PenLine },
   { to: "/writer/revisions", label: "Revisions", icon: RotateCcw },
