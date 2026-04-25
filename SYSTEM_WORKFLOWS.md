@@ -7,11 +7,11 @@ This document provides a forensic breakdown of the Alanaatii platform's function
 ## 1. The Customer "Order-to-Delivery" Flow
 Managing the luxury letter and gift customization experience.
 
-### Phase 1: Product Selection & Pricing Strategy
-- **Action**: User selects a product type on the [Products Page](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-main/src/pages/Products.tsx).
+### Phase 1: Product Selection & Discovery
+- **Action**: User views offerings on the [Products Page](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-main/src/pages/Products.tsx) and navigates to a dedicated [ProductDetail](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-main/src/pages/ProductDetail.tsx) page to learn about features and pricing.
 - **Internal Logic**: 
-  - System queries `catalog_items` to pull base prices and images.
-  - If "Only Script" is chosen, "Quantity" and "Shipping" steps are automatically bypassed in the `Stepper`.
+  - System renders deep-dive information for the selected product type.
+  - Clicking "Start Customizing" forwards the user to `OrderFlow.tsx` with the product type pre-selected.
 - **Primary Model**: `catalog_items`.
 
 ### Phase 2: Urgency & Logistics (Rules Engine)
@@ -21,11 +21,22 @@ Managing the luxury letter and gift customization experience.
   - **Pincode Lookup**: System checks `pincode_rules` for the first 3 digits of the zip. If not found, a default ₹100 charge is applied to `pincode_fee`.
 - **Primary Models**: `pricing_day_rules`, `pincode_rules`, `orders`.
 
-### Phase 3: Relationship Intelligence
-- **Action**: User selects a "Relation" (e.g., Lover, Teacher).
-- **Internal Logic**:
-  - The UI dynamically renders questions recorded in `mandatory_questions` associated with that `relation_type`.
-  - Input is saved to `message_content` in the `orders` table.
+### Phase 3: Strict Two-Stage Data Collection (Checkout vs Script Form)
+The checkout process is intentionally lean. The detailed script requirements are collected in a separate, mandatory form after payment verification.
+
+- **Stage 1 — Checkout** ([OrderFlow.tsx](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-main/src/pages/OrderFlow.tsx)):
+  - User provides only basic sender info: `customer_name`, `customer_phone`, `customer_email`.
+  - Recipient details (`recipient_name`, `recipient_phone`, `primary_contact`), `relation`, `message_content`, and `special_notes` are **not** collected here.
+  - Order is created with these fields as `NULL`.
+
+- **Stage 2 — Mandatory Script Details Form** ([UserPendingDetails.tsx](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-main/src/pages/dashboard/UserPendingDetails.tsx)):
+  - After payment is verified by admin, order status transitions to `awaiting_details`.
+  - A confirmation email is sent to the user containing a direct link to the Script Details Form.
+  - The user can also access this form from their Dashboard in two ways:
+    1. **"Required Details" sidebar tab** ([UserRequiredDetailsList.tsx](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-main/src/pages/dashboard/UserRequiredDetailsList.tsx)) — lists all orders pending details with a "Fill Script Details" button.
+    2. **Orange "Action Required" alert** on each order card in the Dashboard home.
+  - This form collects: `recipient_name`, `recipient_phone`, `primary_contact`, `relation`, `message_content`, `special_notes`.
+  - **Gating Rule**: The writer assignment engine is blocked (`status` remains `awaiting_details`) until the user submits this form. Once submitted, status advances to `order_placed` and the assignment engine activates.
 - **Primary Models**: `mandatory_questions`, `relation_categories`.
 
 ### Phase 4: Fiscal Submission (Checkout)
@@ -99,11 +110,11 @@ The [AdminWriters](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-
 ## 4. Deep Operations & Administrative Mastery
 Managing the internal levers of the luxury platform beyond day-to-day orders.
 
-### Global Service Controls (Service Pause)
+### Global Site Settings & Overrides
 - **Workflow**:
-  1. Admin navigates to **Site Settings**.
-  2. Toggles `IS_SERVICE_ACTIVE` to `false`.
-  3. **Impact**: The `OrderFlow.tsx` displays a "Peak Load / Maintenance" banner, effectively preventing new checkouts during festivals or staff shortages.
+  1. Admin navigates to **Global Settings** ([AdminSettings.tsx](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-main/src/pages/admin/AdminSettings.tsx)).
+  2. Updates public configuration like `master_upi_id`, `support_email`, or toggles `maintenance_mode`.
+  3. **Impact**: The checkout flow automatically pulls the new UPI ID. Toggling Maintenance Mode immediately restricts public access. The "Auto-Assign Writers" toggle enables or disables the backend routing engine.
 - **Primary Model**: `site_settings`.
 
 ### The Writer Payout Visibility Loop
@@ -113,11 +124,11 @@ Managing the internal levers of the luxury platform beyond day-to-day orders.
   3. Writer can view the breakdown of scripts included in the payout to verify against their history.
 - **Primary Models**: `payouts`, `orders`, `notifications`.
 
-### Content Moderation
+### Content Moderation (Testimonials)
 - **Workflow**:
   1. Customer submits a review on [SubmitReview Page](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-main/src/pages/SubmitReview.tsx).
   2. Review is saved in `reviews` with `is_published = false`.
-  3. Admin reviews content in moderation hub and toggles `is_published`.
+  3. Admin navigates to **Review Moderation** ([AdminReviews.tsx](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-main/src/pages/admin/AdminReviews.tsx)) to read, delete, or toggle the `is_published` flag to feature it on the landing page.
 - **Primary Models**: `reviews`.
 
 ---
@@ -144,6 +155,7 @@ A high-level view of how tables rely on each other.
 | Flow Event | Writing Table | Dependent Lookups |
 | :--- | :--- | :--- |
 | **New Order** | `orders`, `transactions` | `catalog_items`, `coupons`, `users` |
+| **Script Details Submitted** | `orders` (recipient, relation, message) | `mandatory_questions`, `relation_categories` |
 | **Writer Assigned**| `writer_assignments` | `writers`, `orders` |
 | **Script Submitted**| `script_versions` | `orders`, `writer_assignments` |
 | **Refund Processed**| `transactions` (rejected) | `orders`, `audit_logs` |
@@ -153,3 +165,6 @@ A high-level view of how tables rely on each other.
 
 > [!IMPORTANT]
 > **Data Integrity Constraint**: An `order` cannot move to `assigned_to_writer` until the associated `transaction` is marked as `verified` in the Payments Hub.
+
+> [!IMPORTANT]
+> **Gating Constraint**: An `order` in `awaiting_details` status cannot advance to `assigned_to_writer` until the user submits the mandatory Script Details Form (`recipient_name`, `relation`, `message_content` are all non-NULL).

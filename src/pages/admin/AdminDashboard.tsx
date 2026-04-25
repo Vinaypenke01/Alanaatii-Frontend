@@ -1,7 +1,7 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, FileText, Type, Package, Gift, HelpCircle, ShoppingCart, PenLine, Settings, Ticket, BarChart3, Users, ScrollText, FileImage, CreditCard, RefreshCw } from "lucide-react";
+import { LayoutDashboard, FileText, Type, Package, Gift, HelpCircle, ShoppingCart, PenLine, Settings, Ticket, BarChart3, Users, ScrollText, FileImage, CreditCard, RefreshCw, MessageSquareQuote } from "lucide-react";
 import { mockOrders, statusLabels, productTypeLabels } from "@/lib/mockData";
 
 const links = [
@@ -28,7 +28,9 @@ const links = [
     items: [
       { to: "/admin/questions", label: "Admin Questions", icon: HelpCircle },
       { to: "/admin/coupons", label: "Discount Coupons", icon: Ticket },
+      { to: "/admin/reviews", label: "Customer Reviews", icon: MessageSquareQuote },
       { to: "/admin/analytics", label: "Detailed Analytics", icon: BarChart3 },
+      { to: "/admin/settings", label: "Global Settings", icon: Settings },
     ]
   },
 ];

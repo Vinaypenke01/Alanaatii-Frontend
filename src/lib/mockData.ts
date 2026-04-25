@@ -2,6 +2,7 @@
 
 export type OrderStatus =
   | "payment_pending"
+  | "awaiting_details"
   | "order_placed"
   | "assigned_to_writer"
   | "assignment_rejected"
@@ -77,6 +78,7 @@ export interface Order {
 
 export const statusLabels: Record<OrderStatus, string> = {
   payment_pending: "Payment Pending",
+  awaiting_details: "Awaiting Details",
   order_placed: "Order Placed",
   assigned_to_writer: "Assigned to Writer",
   assignment_rejected: "Assignment Rejected",
@@ -93,6 +95,7 @@ export const statusLabels: Record<OrderStatus, string> = {
 
 export const statusOrder: OrderStatus[] = [
   "payment_pending",
+  "awaiting_details",
   "order_placed",
   "assigned_to_writer",
   "assignment_rejected",
@@ -285,24 +288,23 @@ export const mockOrders: Order[] = [
     textStyle: "Telugu",
     box: "Luxury Box",
     gift: null,
-    recipientName: "Anu",
-    relation: "Friend",
+    recipientName: "",
+    relation: "",
     customerName: "Sneha Rao",
     customerPhone: "9876500002",
     customerEmail: "sneha.r@example.com",
-    status: "assigned_to_writer",
+    status: "awaiting_details",
     total: 1400,
     deliveryDate: "2026-05-15",
     address: "78, Lake View",
     city: "Bangalore",
     pincode: "560001",
     createdAt: "2026-04-08",
-    assignedWriterId: "w1",
     tone: "Warm & Heartfelt",
-    messageContent: "Anu has been like a sister to me. She's moving away for a new job and I want to send her a box of letters she can read whenever she misses home.",
-    recipientPhone: "9876543210",
+    messageContent: "",
+    recipientPhone: "",
     primaryContact: "sender",
-    userAnswers: [{ question: "How did you meet?", answer: "We grew up as neighbors." }],
+    userAnswers: [],
   },
   {
     id: "ORD-004",

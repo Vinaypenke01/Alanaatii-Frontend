@@ -39,7 +39,12 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSupport from "./pages/admin/AdminSupport";
 import AdminRefunds from "./pages/admin/AdminRefunds";
 import AdminCatalog from "@/pages/admin/AdminCatalog";
+import AdminReviews from "./pages/admin/AdminReviews";
+import AdminSettings from "./pages/admin/AdminSettings";
 import WriterProfile from "./pages/writer/WriterProfile";
+import ProductDetail from "./pages/ProductDetail";
+import UserPendingDetails from "./pages/dashboard/UserPendingDetails";
+import UserRequiredDetailsList from "./pages/dashboard/UserRequiredDetailsList";
 import ScrollToTop from "./components/ScrollToTop";
 import NotFound from "./pages/NotFound";
 import SubmitReview from "./pages/SubmitReview";
@@ -56,6 +61,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
@@ -67,6 +73,8 @@ const App = () => (
           <Route path="/dashboard" element={<UserDashboard />} />
           <Route path="/dashboard/orders" element={<UserOrders />} />
           <Route path="/dashboard/orders/:orderId" element={<UserOrderDetail />} />
+          <Route path="/dashboard/details/:id" element={<UserPendingDetails />} />
+          <Route path="/dashboard/required-details" element={<UserRequiredDetailsList />} />
           <Route path="/dashboard/scripts" element={<UserScripts />} />
           <Route path="/dashboard/profile" element={<UserProfile />} />
           <Route path="/dashboard/notifications" element={<UserNotifications />} />
@@ -98,6 +106,8 @@ const App = () => (
           <Route path="/admin/analytics" element={<AdminAnalytics />} />
           <Route path="/admin/support" element={<AdminSupport />} />
           <Route path="/admin/refunds" element={<AdminRefunds />} />
+          <Route path="/admin/reviews" element={<AdminReviews />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>

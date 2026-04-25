@@ -21,11 +21,11 @@ Stores all customer orders for scripts, letters, and gift sets.
 | `customer_name` | `VARCHAR(100)` | NOT NULL | Name of the person ordering (Sender) |
 | `customer_phone`| `VARCHAR(20)` | NOT NULL | Phone/WhatsApp of the sender |
 | `customer_email`| `VARCHAR(150)` | NOT NULL | Email of the sender |
-| `recipient_name`| `VARCHAR(100)` | NOT NULL | Name of the letter recipient |
-| `recipient_phone`| `VARCHAR(20)` | NOT NULL | Phone number of the recipient |
-| `primary_contact`| `ENUM` | NOT NULL | Who to contact for delivery (`sender` or `recipient`) |
-| `relation` | `VARCHAR(50)` | NOT NULL | Relationship to the sender |
-| `message_content`| `TEXT` | NOT NULL | Customer's raw instructions/story |
+| `recipient_name`| `VARCHAR(100)` | NULLABLE | Name of the letter recipient (can be filled post-order) |
+| `recipient_phone`| `VARCHAR(20)` | NULLABLE | Phone number of the recipient (can be filled post-order) |
+| `primary_contact`| `ENUM` | NULLABLE | Who to contact for delivery (`sender` or `recipient`). Filled in Stage 2 post-payment form. |
+| `relation` | `VARCHAR(50)` | NULLABLE | Relationship to the sender (can be filled post-order) |
+| `message_content`| `TEXT` | NULLABLE | Customer's raw instructions/story (can be filled post-order) |
 | `special_notes` | `TEXT` | NULLABLE | Custom requests for the writer |
 | `express_script` | `BOOLEAN` | DEFAULT FALSE | +₹ fee for faster drafting |
 | `script_content`| `TEXT` | NULLABLE | Final approved content for the letter |
@@ -278,13 +278,16 @@ Supports auto-save functionality within the Writer Editor.
 Platform-wide settings and customer support entries.
 
 ### `site_settings`
-Key-value store for global platform constants.
+Global platform configuration managed via [AdminSettings.tsx](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-main/src/pages/admin/AdminSettings.tsx).
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-| `key` | `VARCHAR(50)` | PRIMARY KEY | e.g. `UPI_ID`, `EXPRESS_FEE` |
-| `value` | `TEXT` | NOT NULL | |
-| `type` | `ENUM` | NOT NULL | `number`, `string`, `json` |
-| `description` | `TEXT` | | For admin reference |
+| `id` | `INT` | PRIMARY KEY | Always 1 (Single-row table) |
+| `master_upi_id` | `VARCHAR(100)` | NOT NULL | Displayed on payment page |
+| `support_email` | `VARCHAR(150)` | NOT NULL | Public contact email |
+| `support_whatsapp`| `VARCHAR(20)` | NOT NULL | Public WhatsApp number |
+| `maintenance_mode`| `BOOLEAN` | DEFAULT FALSE | Disables public website access |
+| `auto_assign_writers`| `BOOLEAN` | DEFAULT TRUE| Auto-routes new orders to the assignment engine |
+| `updated_at` | `TIMESTAMP` | DEFAULT NOW() | |
 
 ### `support_messages`
 Captures inquiries from the Contact page.
@@ -379,20 +382,22 @@ Unified registry for all uploaded media (screenshots, product photos).
 | `entity_id` | `VARCHAR(36)` | NOT NULL | Related record ID |
 | `created_at` | `TIMESTAMP` | DEFAULT NOW() | |
 
+
 ---
 
 ## Status Reference
 
 ### Order Status Flow
-1. `payment_pending` - Waiting for screenshot approval.
-2. `order_placed` - Payment approved, pending assignment.
-3. `assigned_to_writer` - Writer notified, awaiting acceptance.
-4. `assignment_rejected` - Admin must re-assign.
-5. `accepted_by_writer` - Script creation in progress.
-6. `script_submitted` - Writer uploaded draft.
-7. `customer_review` - Notification sent to user.
-8. `revision_requested` - Feedback provided by user.
-9. `approved` - Ready for writing/execution.
-10. `under_writing` - Artist is creating the physical letter.
-11. `out_for_delivery` - Courier dispatched.
-12. `delivered` - Final closure.
+1. `payment_pending` — Waiting for screenshot approval.
+2. `order_placed` — Payment approved. Basic sender info collected.
+3. `awaiting_details` — Payment verified. User must fill the mandatory Script Details Form (recipient info, relation, story) before writing can begin. Link sent via email and accessible from Dashboard → Required Details.
+4. `assigned_to_writer` — Details complete. Writer notified, awaiting acceptance.
+5. `assignment_rejected` — Writer declined. Admin must re-assign.
+6. `accepted_by_writer` — Script creation in progress.
+7. `script_submitted` — Writer uploaded draft.
+8. `customer_review` — Notification sent to user for approval.
+9. `revision_requested` — Feedback provided by user.
+10. `approved` — Ready for physical writing/execution.
+11. `under_writing` — Artist is creating the physical letter.
+12. `out_for_delivery` — Courier dispatched.
+13. `delivered` — Final closure.

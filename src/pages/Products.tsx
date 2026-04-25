@@ -75,12 +75,11 @@ export default function Products() {
                         </div>
                         
                         <Link 
-                          to="/order" 
-                          onClick={() => setField("productType", pt.id)}
+                          to={`/products/${pt.id}`} 
                           className="mt-6"
                         >
                           <Button className="w-full bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold py-6">
-                            Start Creating
+                            View Details
                           </Button>
                         </Link>
                       </div>

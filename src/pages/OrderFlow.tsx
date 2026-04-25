@@ -121,7 +121,7 @@ export default function OrderFlow() {
       case "Style & Date": return !!store.textStyleId && !!store.deliveryDate;
       case "Box": return !!store.boxId;
       case "Gift": return !!store.giftId;
-      case "Details": return !!store.relation && !!store.recipientName && !!store.recipientPhone && !!store.messageContent && !!store.customerName && !!store.customerPhone && !!store.customerEmail && !!store.primaryContact;
+      case "Details": return !!store.customerName && !!store.customerPhone && !!store.customerEmail;
       case "Delivery": return !!store.address && !!store.city && store.pincode.length >= 6;
       default: return true;
     }
@@ -304,67 +304,6 @@ export default function OrderFlow() {
             <div>
               <Label>Your Email</Label>
               <Input type="email" value={store.customerEmail} onChange={(e) => setField("customerEmail", e.target.value)} placeholder="your@email.com" />
-            </div>
-
-            <div className="pt-4 border-t">
-              <h2 className="font-display text-2xl font-bold text-foreground mb-4">Recipient Details</h2>
-              <div className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Recipient Name</Label>
-                    <Input value={store.recipientName} onChange={(e) => setField("recipientName", e.target.value)} placeholder="Their name" />
-                  </div>
-                  <div>
-                    <Label>Recipient Phone / WhatsApp</Label>
-                    <Input value={store.recipientPhone} onChange={(e) => setField("recipientPhone", e.target.value.replace(/[^\d+]/g, ""))} placeholder="Their number" />
-                  </div>
-                </div>
-                <div>
-                  <Label>Relation</Label>
-                  <Select value={store.relation ?? ""} onValueChange={(v) => setField("relation", v)}>
-                    <SelectTrigger><SelectValue placeholder="Select relation" /></SelectTrigger>
-                    <SelectContent>
-                      {relations.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 space-y-3">
-                  <Label className="text-sm font-bold text-primary flex items-center gap-2">
-                    <CheckCircle2 size={16} /> Primary Contact for Delivery
-                  </Label>
-                  <p className="text-[11px] text-muted-foreground leading-tight">
-                    Who should our delivery partner contact for location details or calls?
-                  </p>
-                  <div className="flex gap-4 pt-1">
-                    <Button 
-                      type="button"
-                      variant={store.primaryContact === "sender" ? "default" : "outline"}
-                      className="flex-1 h-10 text-xs"
-                      onClick={() => setField("primaryContact", "sender")}
-                    >
-                      Me (Sender)
-                    </Button>
-                    <Button 
-                      type="button"
-                      variant={store.primaryContact === "recipient" ? "default" : "outline"}
-                      className="flex-1 h-10 text-xs"
-                      onClick={() => setField("primaryContact", "recipient")}
-                    >
-                      Them (Recipient)
-                    </Button>
-                  </div>
-                </div>
-
-                <div>
-                  <Label>Message Content</Label>
-                  <Textarea value={store.messageContent} onChange={(e) => setField("messageContent", e.target.value)} placeholder="What would you like to say?" rows={4} />
-                </div>
-                <div>
-                  <Label>Special Notes (optional)</Label>
-                  <Input value={store.specialNotes} onChange={(e) => setField("specialNotes", e.target.value)} placeholder="Any special requests?" />
-                </div>
-              </div>
             </div>
           </div>
         );
