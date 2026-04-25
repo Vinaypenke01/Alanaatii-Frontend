@@ -19,19 +19,18 @@ export default function UserPendingDetails() {
   
   const order = mockOrders.find((o) => o.id === id);
   
-  const [form, setForm] = useState({
-    recipientName: order?.recipientName || "",
-    recipientPhone: order?.recipientPhone || "",
-    primaryContact: order?.primaryContact || "recipient",
-    relation: order?.relation || "",
-    messageContent: order?.messageContent || "",
-    specialNotes: order?.specialNotes || ""
-  });
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+
+  const questions = [
+    "How did you meet?",
+    "What is your favorite memory together?",
+    "What do you love most about them?"
+  ];
 
   if (!order) return <p>Order not found.</p>;
 
-  // If order already has details, redirect back
-  if (order.messageContent && order.relation && order.recipientName) {
+  // If order already has questionnaire details, redirect back
+  if (order.userAnswers && order.userAnswers.length > 0) {
     return (
       <DashboardLayout title="Details Complete" links={userDashboardLinks} brandLabel="Customer Dashboard">
         <div className="text-center py-20 bg-card rounded-xl border">
@@ -45,8 +44,9 @@ export default function UserPendingDetails() {
   }
 
   const saveDetails = () => {
-    if (!form.recipientName || !form.recipientPhone || !form.relation || !form.messageContent || !form.primaryContact) {
-      toast.error("Please fill in all required fields.");
+    // Check if all questions are answered
+    if (questions.some(q => !answers[q] || answers[q].trim() === "")) {
+      toast.error("Please answer all questions so we can personalize your letter.");
       return;
     }
     
@@ -63,84 +63,24 @@ export default function UserPendingDetails() {
         </Button>
 
         <div className="bg-primary/10 border border-primary/20 p-4 rounded-xl mb-6">
-          <h3 className="font-bold text-primary mb-1">Payment Verified!</h3>
-          <p className="text-sm text-muted-foreground">Please provide the necessary recipient details and story below. This is the final step before our writers can begin crafting your custom letter.</p>
+          <h3 className="font-bold text-primary mb-1">Relationship Questionnaire</h3>
+          <p className="text-sm text-muted-foreground">Please answer these questions to help our writers deeply personalize the letter. This is the final step before writing begins.</p>
         </div>
 
         <div className="bg-card border rounded-xl p-6 md:p-8 space-y-6 shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs uppercase tracking-wider font-bold text-muted-foreground">Recipient Name</Label>
-              <Input 
-                value={form.recipientName} 
-                onChange={(e) => setForm(f => ({ ...f, recipientName: e.target.value }))} 
-                placeholder="Their name" 
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs uppercase tracking-wider font-bold text-muted-foreground">Recipient Phone (WhatsApp)</Label>
-              <Input 
-                value={form.recipientPhone} 
-                onChange={(e) => setForm(f => ({ ...f, recipientPhone: e.target.value.replace(/[^\d+]/g, "") }))} 
-                placeholder="Their number" 
-              />
-            </div>
-          </div>
-
-          <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 space-y-3">
-            <Label className="text-sm font-bold text-primary flex items-center gap-2">
-              <CheckCircle2 size={16} /> Primary Contact for Delivery
-            </Label>
-            <p className="text-[11px] text-muted-foreground leading-tight">
-              Who should our delivery partner contact for location details or calls?
-            </p>
-            <div className="flex gap-4 pt-1">
-              <Button 
-                type="button"
-                variant={form.primaryContact === "sender" ? "default" : "outline"}
-                className="flex-1 h-10 text-xs"
-                onClick={() => setForm(f => ({ ...f, primaryContact: "sender" }))}
-              >
-                Me (Sender)
-              </Button>
-              <Button 
-                type="button"
-                variant={form.primaryContact === "recipient" ? "default" : "outline"}
-                className="flex-1 h-10 text-xs"
-                onClick={() => setForm(f => ({ ...f, primaryContact: "recipient" }))}
-              >
-                Them (Recipient)
-              </Button>
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label className="text-xs uppercase tracking-wider font-bold text-muted-foreground">Relation</Label>
-            <Select value={form.relation} onValueChange={(v) => setForm(f => ({ ...f, relation: v }))}>
-              <SelectTrigger><SelectValue placeholder="Select relation" /></SelectTrigger>
-              <SelectContent>
-                {relations.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label className="text-xs uppercase tracking-wider font-bold text-muted-foreground">Message Content / Story</Label>
-            <Textarea 
-              value={form.messageContent} 
-              onChange={(e) => setForm(f => ({ ...f, messageContent: e.target.value }))} 
-              placeholder="What would you like to say? Share the memories or specific things you want included." 
-              rows={6} 
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label className="text-xs uppercase tracking-wider font-bold text-muted-foreground">Special Notes (Optional)</Label>
-            <Input 
-              value={form.specialNotes} 
-              onChange={(e) => setForm(f => ({ ...f, specialNotes: e.target.value }))} 
-              placeholder="Any specific instructions for our writers?" 
-            />
+          
+          <div className="space-y-6">
+            {questions.map((q, idx) => (
+              <div key={idx} className="space-y-2">
+                <Label className="text-sm font-bold">{idx + 1}. {q}</Label>
+                <Textarea 
+                  value={answers[q] || ""}
+                  onChange={(e) => setAnswers(prev => ({ ...prev, [q]: e.target.value }))}
+                  placeholder="Your answer..."
+                  rows={3}
+                />
+              </div>
+            ))}
           </div>
 
           <div className="pt-6 border-t mt-8">

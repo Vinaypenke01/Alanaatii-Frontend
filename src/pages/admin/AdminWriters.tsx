@@ -1,14 +1,23 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { adminLinks } from "./AdminDashboard";
-import { mockWriters } from "@/lib/mockData";
-import type { ScriptWriter } from "@/lib/mockData";
+import { mockWriters, mockOrders, type ScriptWriter } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, FileText, CheckCircle, Clock, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { Link } from "react-router-dom";
+
 
 /**
  * **A. Writer Creator & Onboarding**
@@ -23,6 +32,7 @@ export default function AdminWriters() {
   const [writers, setWriters] = useState<ScriptWriter[]>(mockWriters);
   const [editing, setEditing] = useState<ScriptWriter | null>(null);
   const [showOtp, setShowOtp] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [otp, setOtp] = useState("");
   const [form, setForm] = useState({ 
     name: "", 
@@ -34,6 +44,16 @@ export default function AdminWriters() {
     languages: "", 
     status: "active" as "active" | "inactive" 
   });
+
+  const getWriterStats = (writerId: string) => {
+    const writerOrders = mockOrders.filter(o => o.assignedWriterId === writerId);
+    return {
+      assigned: writerOrders.length,
+      completed: writerOrders.filter(o => o.status === "approved" || o.status === "delivered").length,
+      pending: writerOrders.filter(o => o.status === "script_in_progress" || o.status === "accepted_by_writer" || o.status === "assigned_to_writer").length,
+      rejected: writerOrders.filter(o => o.status === "assignment_rejected").length
+    };
+  };
 
   const openNew = () => {
     setEditing(null);
@@ -49,6 +69,7 @@ export default function AdminWriters() {
     });
     setShowOtp(false);
     setOtp("");
+    setIsModalOpen(true);
   };
 
   const openEdit = (w: ScriptWriter) => {
@@ -65,6 +86,7 @@ export default function AdminWriters() {
       languages: w.languages?.join(", ") || "", 
       status: w.status 
     });
+    setIsModalOpen(true);
   };
 
   const save = () => {
@@ -94,7 +116,7 @@ export default function AdminWriters() {
       setWriters((prev) => [...prev, { id: `w${Date.now()}`, ...writerData } as ScriptWriter]);
       toast.success("Writer verified and onboarded successfully!");
     }
-    openNew();
+    setIsModalOpen(false);
   };
 
   const remove = (id: string) => {
@@ -104,151 +126,161 @@ export default function AdminWriters() {
 
   return (
     <DashboardLayout title="Manage Script Writers" links={adminLinks} brandLabel="Admin Panel">
-      <div className="space-y-6">
-        {/* Form */}
-        <div className="bg-card rounded-xl border p-4 md:p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-6">
-             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                <Plus size={18} />
-             </div>
-             <h3 className="font-display text-lg font-bold text-foreground">{editing ? "Update Writer Credentials" : "Onboard New Writer"}</h3>
+      <div className="space-y-8">
+        {/* Header with Add Button */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="font-display text-2xl font-bold text-foreground">Writers Roster</h2>
+            <p className="text-sm text-muted-foreground mt-1">Manage and track your script writers' performance</p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-5">
-            <div className="space-y-1.5"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Full Name</label><Input placeholder="John Doe" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className="bg-muted/30 border-none h-11" /></div>
-            <div className="space-y-1.5"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Email Address</label><Input placeholder="john@example.com" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} className="bg-muted/30 border-none h-11" /></div>
-            <div className="space-y-1.5"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Phone Number</label><Input placeholder="9876543210" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className="bg-muted/30 border-none h-11" /></div>
-            <div className="space-y-1.5"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Initial Password</label><Input placeholder="••••••••" type="password" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} className="bg-muted/30 border-none h-11" /></div>
-            
-            <div className="space-y-1.5 lg:col-span-1"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Secondary Phone</label><Input placeholder="Optional" value={form.phoneSecondary} onChange={(e) => setForm((f) => ({ ...f, phoneSecondary: e.target.value }))} className="bg-muted/30 border-none h-11" /></div>
-            
-            <div className="space-y-1.5 lg:col-span-2"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Languages (comma separated)</label><Input placeholder="English, Telugu, Hindi" value={form.languages} onChange={(e) => setForm((f) => ({ ...f, languages: e.target.value }))} className="bg-muted/30 border-none h-11" /></div>
-            
-            <div className="space-y-1.5 lg:col-span-2"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Resident Address</label><Input placeholder="Enter residential address" value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} className="bg-muted/30 border-none h-11" /></div>
-
-            <div className="space-y-1.5"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Writer Status</label>
-              <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as "active" | "inactive" }))}>
-                <SelectTrigger className="bg-muted/30 border-none h-11"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Active (Receiving Jobs)</SelectItem>
-                  <SelectItem value="inactive">Inactive (Skipped by Engine)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          
-          {showOtp && !editing && (
-            <div className="mt-6 p-5 bg-primary/5 border border-primary/20 rounded-xl max-w-md animate-in fade-in slide-in-from-top-4">
-              <h4 className="font-bold text-primary mb-1">Verify Writer Email</h4>
-              <p className="text-xs text-muted-foreground mb-4">An OTP has been sent to <strong>{form.email}</strong>. Ask the writer for this code to complete their account setup.</p>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Enter Verification Code</label>
-                <Input placeholder="e.g. 123456" value={otp} onChange={(e) => setOtp(e.target.value)} className="bg-white border-primary/20 h-11" />
-              </div>
-            </div>
-          )}
-          
-          <div className="flex flex-col sm:flex-row gap-3 mt-6 pt-6 border-t">
-            <Button onClick={save} className="bg-gradient-gold text-primary-foreground hover:opacity-90 h-11 flex-1 sm:flex-none px-8 font-bold shadow-lg shadow-primary/10">
-              {editing ? "Save Changes" : showOtp ? "Verify OTP & Create Writer" : "Confirm Onboarding"}
-            </Button>
-            {editing && <Button variant="outline" onClick={openNew} className="h-11 flex-1 sm:flex-none px-6">Cancel Edit</Button>}
-            {showOtp && !editing && <Button variant="ghost" onClick={() => setShowOtp(false)} className="h-11 flex-1 sm:flex-none px-6">Cancel</Button>}
-          </div>
+          <Button onClick={openNew} className="bg-gradient-gold text-primary-foreground font-bold shadow-lg shadow-primary/20 h-12 px-6">
+            <Plus size={18} className="mr-2" /> Add New Writer
+          </Button>
         </div>
 
-        {/* Mobile View: Cards */}
-        <div className="block lg:hidden space-y-4">
-          <div className="flex items-center justify-between px-1">
-             <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Writer Roster ({writers.length})</h3>
-          </div>
-          {writers.map((w) => (
-            <div key={w.id} className="bg-card rounded-xl border p-4 shadow-sm relative overflow-hidden group">
-              <div className={cn("absolute top-0 right-0 w-2 h-full", w.status === "active" ? "bg-green-500" : "bg-muted")} />
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                      {w.name.charAt(0)}
-                   </div>
-                   <div>
-                      <h4 className="font-bold text-foreground">{w.name}</h4>
-                      <p className="text-xs text-muted-foreground truncate max-w-[180px]">{w.email}</p>
-                   </div>
-                </div>
-                <div className="flex gap-1">
-                   <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => openEdit(w)}><Pencil size={14} /></Button>
-                   <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => remove(w.id)}><Trash2 size={14} /></Button>
-                </div>
-              </div>
-              <div className="flex items-center justify-between pt-3 border-t">
-                 <div className="flex flex-col gap-1">
-                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Skills</p>
-                    <div className="flex flex-wrap gap-1">
-                       {w.languages?.map(l => (
-                          <span key={l} className="text-[8px] bg-primary/5 text-primary border border-primary/10 px-1.5 py-0.5 rounded font-bold uppercase">{l}</span>
-                       ))}
-                    </div>
-                 </div>
-                 <div className="text-right">
-                    <span className={cn(
-                      "text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border inline-block",
-                      w.status === "active" ? "bg-green-50 text-green-700 border-green-200" : "bg-muted text-muted-foreground border-border"
-                    )}>
-                      {w.status === "active" ? "Online" : "Away"}
-                    </span>
-                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        {/* Modal Form */}
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="font-display text-2xl font-bold">
+                {editing ? "Update Writer Profile" : "Onboard New Writer"}
+              </DialogTitle>
+            </DialogHeader>
 
-        {/* Desktop Table: List */}
-        <div className="hidden lg:block bg-card rounded-xl border overflow-hidden shadow-sm">
-          <div className="px-6 py-4 border-b bg-muted/5">
-             <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Active & Inactive Writers</h3>
-          </div>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/30">
-                <th className="text-left p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Writer Profile</th>
-                <th className="text-left p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Languages</th>
-                <th className="text-left p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Availability</th>
-                <th className="text-right p-4 font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {writers.map((w) => (
-                <tr key={w.id} className="border-b last:border-0 hover:bg-muted/10 transition-colors">
-                  <td className="p-4">
-                    <div className="flex flex-col">
-                       <span className="font-bold text-foreground">{w.name}</span>
-                       <span className="text-[11px] text-muted-foreground">{w.email}</span>
-                       <span className="text-[10px] text-primary/70 font-mono mt-0.5">{w.phone}</span>
+            <div className="space-y-6 py-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Full Name</label><Input placeholder="John Doe" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className="h-11" /></div>
+                <div className="space-y-1.5"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Email Address</label><Input placeholder="john@example.com" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} className="h-11" /></div>
+                <div className="space-y-1.5"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Phone Number</label><Input placeholder="9876543210" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className="h-11" /></div>
+                <div className="space-y-1.5"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Initial Password</label><Input placeholder="••••••••" type="password" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} className="h-11" /></div>
+                
+                <div className="space-y-1.5 lg:col-span-2"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Languages (comma separated)</label><Input placeholder="English, Telugu, Hindi" value={form.languages} onChange={(e) => setForm((f) => ({ ...f, languages: e.target.value }))} className="h-11" /></div>
+                
+                <div className="space-y-1.5 lg:col-span-2"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Resident Address</label><Input placeholder="Enter residential address" value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} className="h-11" /></div>
+
+                <div className="space-y-1.5"><label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Writer Status</label>
+                  <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as "active" | "inactive" }))}>
+                    <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Active (Receiving Jobs)</SelectItem>
+                      <SelectItem value="inactive">Inactive (On Leave)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {showOtp && !editing && (
+                <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                  <h4 className="font-bold text-primary mb-1">Verify Writer Email</h4>
+                  <p className="text-xs text-muted-foreground mb-3">An OTP has been sent to <strong>{form.email}</strong>.</p>
+                  <Input placeholder="Enter OTP" value={otp} onChange={(e) => setOtp(e.target.value)} className="h-11 border-primary/20" />
+                </div>
+              )}
+            </div>
+
+            <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-2">
+              <Button variant="outline" onClick={() => setIsModalOpen(false)} className="flex-1 sm:flex-none">Cancel</Button>
+              <Button onClick={save} className="bg-gradient-gold text-primary-foreground font-bold flex-1 sm:flex-none px-8">
+                {editing ? "Save Changes" : showOtp ? "Verify & Create" : "Onboard Writer"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Writer Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {writers.map((w) => {
+            const stats = getWriterStats(w.id);
+            return (
+              <div key={w.id} className="bg-card rounded-2xl border shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col group">
+                {/* Status Header */}
+                <div className={cn(
+                  "h-1.5 w-full",
+                  w.status === "active" ? "bg-green-500" : "bg-muted-foreground/30"
+                )} />
+                
+                <div className="p-6 flex-grow">
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary text-xl font-bold font-display group-hover:scale-105 transition-transform">
+                        {w.name.charAt(0)}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-xl text-foreground group-hover:text-primary transition-colors">{w.name}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={cn(
+                            "w-2 h-2 rounded-full",
+                            w.status === "active" ? "bg-green-500" : "bg-muted-foreground"
+                          )} />
+                          <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                            {w.status === "active" ? "Active" : "Inactive"}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </td>
-                  <td className="p-4">
-                     <div className="flex flex-wrap gap-1 max-w-[200px]">
-                        {w.languages?.map(l => (
-                           <span key={l} className="text-[9px] bg-primary/5 text-primary border border-primary/10 px-2 py-0.5 rounded font-bold uppercase">{l}</span>
-                        ))}
-                     </div>
-                  </td>
-                  <td className="p-4">
-                    <span className={cn(
-                      "text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-widest border",
-                      w.status === "active" ? "bg-green-50 text-green-700 border-green-200" : "bg-muted text-muted-foreground border-border"
-                    )}>{w.status === "active" ? "Active" : "Inactive"}</span>
-                  </td>
-                  <td className="p-4 text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button size="sm" variant="ghost" className="hover:bg-primary/10 hover:text-primary" onClick={() => openEdit(w)}><Pencil size={14} /></Button>
-                      <Button size="sm" variant="ghost" className="hover:bg-destructive/10 hover:text-destructive" onClick={() => remove(w.id)}><Trash2 size={14} /></Button>
+                    <div className="flex gap-1">
+                      <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => openEdit(w)}><Pencil size={14} /></Button>
+                      <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => remove(w.id)}><Trash2 size={14} /></Button>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    <div className="bg-muted/30 rounded-xl p-3 flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600">
+                        <FileText size={16} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase">Assigned</p>
+                        <p className="font-bold text-lg leading-none">{stats.assigned}</p>
+                      </div>
+                    </div>
+                    <div className="bg-muted/30 rounded-xl p-3 flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center text-green-600">
+                        <CheckCircle size={16} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase">Done</p>
+                        <p className="font-bold text-lg leading-none">{stats.completed}</p>
+                      </div>
+                    </div>
+                    <div className="bg-muted/30 rounded-xl p-3 flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600">
+                        <Clock size={16} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase">Pending</p>
+                        <p className="font-bold text-lg leading-none">{stats.pending}</p>
+                      </div>
+                    </div>
+                    <div className="bg-muted/30 rounded-xl p-3 flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center text-red-600">
+                        <XCircle size={16} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase">Rejected</p>
+                        <p className="font-bold text-lg leading-none">{stats.rejected}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5">
+                    {w.languages?.map(l => (
+                      <span key={l} className="text-[10px] bg-primary/5 text-primary border border-primary/10 px-2.5 py-1 rounded-full font-bold uppercase">{l}</span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="px-6 py-4 bg-muted/5 border-t mt-auto">
+                  <Link to={`/admin/writer-profile/${w.id}`} className="block">
+                    <Button variant="outline" className="w-full font-bold text-primary border-primary/20 hover:bg-primary/5">
+                      <Eye size={16} className="mr-2" /> View Detailed Profile
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </DashboardLayout>

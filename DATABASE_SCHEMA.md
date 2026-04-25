@@ -40,6 +40,17 @@ Stores all customer orders for scripts, letters, and gift sets.
 | `shipped_at` | `TIMESTAMP` | NULLABLE | |
 | `est_arrival` | `DATE` | NULLABLE | |
 | `created_at` | `TIMESTAMP` | DEFAULT NOW() | Timestamp of order placement |
+| `assigned_at` | `TIMESTAMP` | NULLABLE | When the writer was linked to the order |
+| `submitted_at` | `TIMESTAMP` | NULLABLE | When the first script draft was uploaded |
+| `approved_at` | `TIMESTAMP` | NULLABLE | When the customer gave final approval |
+| `base_price` | `DECIMAL(10,2)` | | Component: Letter/Package price |
+| `style_price` | `DECIMAL(10,2)` | | Component: Calligraphy selection |
+| `box_price` | `DECIMAL(10,2)` | | Component: Luxury box selection |
+| `gift_price` | `DECIMAL(10,2)` | | Component: Gift add-on selection |
+| `delivery_price`| `DECIMAL(10,2)` | | Component: Shipping/Logistics fee |
+| `express_price` | `DECIMAL(10,2)` | | Component: Early Delivery/Express fee |
+| `discount_amt` | `DECIMAL(10,2)` | | Total discount from coupons/offers |
+| `revision_note` | `TEXT` | NULLABLE | Feedback provided during revision phase |
 
 ### `script_versions` (Submissions)
 Tracks revisions for order content. Every submission by a writer is recorded here.
@@ -389,8 +400,8 @@ Unified registry for all uploaded media (screenshots, product photos).
 
 ### Order Status Flow
 1. `payment_pending` — Waiting for screenshot approval.
-2. `order_placed` — Payment approved. Basic sender info collected.
-3. `awaiting_details` — Payment verified. User must fill the mandatory Script Details Form (recipient info, relation, story) before writing can begin. Link sent via email and accessible from Dashboard → Required Details.
+2. `order_placed` — Payment approved. Basic sender and script details (recipient, story, relation) collected.
+3. `awaiting_details` — Payment verified. User must fill the mandatory Relationship Questionnaire before writing can begin. Link sent via email and accessible from Dashboard → Required Details.
 4. `assigned_to_writer` — Details complete. Writer notified, awaiting acceptance.
 5. `assignment_rejected` — Writer declined. Admin must re-assign.
 6. `accepted_by_writer` — Script creation in progress.

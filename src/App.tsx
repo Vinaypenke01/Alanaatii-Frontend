@@ -32,6 +32,7 @@ import AdminQuestions from "./pages/admin/AdminQuestions";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminPayments from "./pages/admin/AdminPayments";
 import AdminWriters from "./pages/admin/AdminWriters";
+import AdminWriterDetail from "./pages/admin/AdminWriterDetail";
 import AdminScripts from "./pages/admin/AdminScripts";
 import AdminPricing from "./pages/admin/AdminPricing";
 import AdminCoupons from "./pages/admin/AdminCoupons";
@@ -99,6 +100,7 @@ const App = () => (
           <Route path="/admin/questions" element={<AdminQuestions />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/payments" element={<AdminPayments />} />
+          <Route path="/admin/writer-profile/:id" element={<AdminWriterDetail />} />
           <Route path="/admin/writers" element={<AdminWriters />} />
           <Route path="/admin/scripts" element={<AdminScripts />} />
           <Route path="/admin/pricing" element={<AdminPricing />} />

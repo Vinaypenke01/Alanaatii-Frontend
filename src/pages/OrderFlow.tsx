@@ -121,7 +121,7 @@ export default function OrderFlow() {
       case "Style & Date": return !!store.textStyleId && !!store.deliveryDate;
       case "Box": return !!store.boxId;
       case "Gift": return !!store.giftId;
-      case "Details": return !!store.customerName && !!store.customerPhone && !!store.customerEmail;
+      case "Details": return !!store.customerName && !!store.customerPhone && !!store.customerEmail && !!store.recipientName && !!store.relation && !!store.messageContent;
       case "Delivery": return !!store.address && !!store.city && store.pincode.length >= 6;
       default: return true;
     }
@@ -289,21 +289,96 @@ export default function OrderFlow() {
 
       case "Details":
         return (
-          <div className="space-y-5">
-            <h2 className="font-display text-2xl font-bold text-foreground">Your Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>Your Name</Label>
-                <Input value={store.customerName} onChange={(e) => setField("customerName", e.target.value)} placeholder="Enter your full name" />
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <h2 className="font-display text-2xl font-bold text-foreground border-b pb-2">Your Details (Sender)</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label>Your Name</Label>
+                  <Input value={store.customerName} onChange={(e) => setField("customerName", e.target.value)} placeholder="Enter your full name" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Your WhatsApp</Label>
+                  <Input value={store.customerPhone} onChange={(e) => setField("customerPhone", e.target.value.replace(/[^\d+]/g, ""))} placeholder="WhatsApp number" />
+                </div>
               </div>
-              <div>
-                <Label>Your Phone / WhatsApp</Label>
-                <Input value={store.customerPhone} onChange={(e) => setField("customerPhone", e.target.value.replace(/[^\d+]/g, ""))} placeholder="WhatsApp number" />
+              <div className="space-y-1.5">
+                <Label>Your Email</Label>
+                <Input type="email" value={store.customerEmail} onChange={(e) => setField("customerEmail", e.target.value)} placeholder="your@email.com" />
               </div>
             </div>
-            <div>
-              <Label>Your Email</Label>
-              <Input type="email" value={store.customerEmail} onChange={(e) => setField("customerEmail", e.target.value)} placeholder="your@email.com" />
+
+            <div className="space-y-4">
+              <h2 className="font-display text-2xl font-bold text-foreground border-b pb-2">Recipient Details</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label>Recipient Name</Label>
+                  <Input value={store.recipientName} onChange={(e) => setField("recipientName", e.target.value)} placeholder="Their name" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Recipient WhatsApp (Optional)</Label>
+                  <Input value={store.recipientPhone} onChange={(e) => setField("recipientPhone", e.target.value.replace(/[^\d+]/g, ""))} placeholder="Their number" />
+                </div>
+              </div>
+              
+              <div className="space-y-1.5">
+                <Label>Relation</Label>
+                <Select value={store.relation || ""} onValueChange={(v) => setField("relation", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select relation" /></SelectTrigger>
+                  <SelectContent>
+                    {relations.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 space-y-3">
+                <Label className="text-sm font-bold text-primary flex items-center gap-2">
+                  <CheckCircle2 size={16} /> Primary Contact for Delivery
+                </Label>
+                <p className="text-[11px] text-muted-foreground leading-tight">
+                  Who should our delivery partner contact for location details or calls?
+                </p>
+                <div className="flex gap-4 pt-1">
+                  <Button 
+                    type="button"
+                    variant={store.primaryContact === "sender" ? "default" : "outline"}
+                    className="flex-1 h-10 text-xs"
+                    onClick={() => setField("primaryContact", "sender")}
+                  >
+                    Me (Sender)
+                  </Button>
+                  <Button 
+                    type="button"
+                    variant={store.primaryContact === "recipient" ? "default" : "outline"}
+                    className="flex-1 h-10 text-xs"
+                    onClick={() => setField("primaryContact", "recipient")}
+                  >
+                    Them (Recipient)
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="font-display text-2xl font-bold text-foreground border-b pb-2">Letter Content</h2>
+              <div className="space-y-1.5">
+                <Label>The Story / Message</Label>
+                <Textarea 
+                  value={store.messageContent} 
+                  onChange={(e) => setField("messageContent", e.target.value)} 
+                  placeholder="Tell us what you want to convey in the letter. Our writers will use this to craft your perfect message." 
+                  rows={5} 
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Special Notes for Writer (Optional)</Label>
+                <Textarea 
+                  value={store.specialNotes} 
+                  onChange={(e) => setField("specialNotes", e.target.value)} 
+                  placeholder="Any specific tone, inside jokes, or things to avoid?" 
+                  rows={2} 
+                />
+              </div>
             </div>
           </div>
         );

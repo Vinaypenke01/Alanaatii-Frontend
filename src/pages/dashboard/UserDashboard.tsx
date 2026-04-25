@@ -60,7 +60,7 @@ export default function UserDashboard() {
                     </span>
                   </div>
                 </div>
-                {!order.messageContent && (
+                {(!order.userAnswers || order.userAnswers.length === 0) && order.productType !== "letterPaper" && (
                   <div className="mt-4 pt-3 border-t">
                     <Link to={`/dashboard/details/${order.id}`} className="text-xs font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1">
                       Action Required: Complete your Script Details Form to begin writing <ArrowRight size={12} />

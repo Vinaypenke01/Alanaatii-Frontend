@@ -8,6 +8,7 @@ import { Reveal } from "@/components/Reveal";
 import productLetter from "@/assets/product-letter.jpg";
 import productLetterBox from "@/assets/product-letterbox.jpg";
 import productGiftSet from "@/assets/product-giftset.jpg";
+import heroBg from "@/assets/hero-bg.jpg";
 
 const productDetails: Record<string, { img: string; includes: string[] }> = {
   script: {
@@ -38,10 +39,26 @@ export default function Products() {
   return (
     <div className="min-h-screen">
       <Navbar />
-      <div className="pt-24 pb-20">
+
+      {/* Page Header */}
+      <section className="relative h-[35vh] min-h-[250px] flex items-center justify-center overflow-hidden mt-16">
+        <img src={heroBg} alt="Our Products" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="container relative z-10 text-center">
+          <Reveal width="100%">
+            <h1 className="font-display text-4xl md:text-5xl font-bold text-primary-foreground mb-4">
+              Our Products
+            </h1>
+            <p className="text-primary-foreground/80 text-lg max-w-2xl mx-auto">
+              Choose the perfect option for your special someone.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      <div className="py-20">
         <div className="container">
-          <h1 className="font-display text-4xl font-bold text-foreground text-center mb-2">Our Products</h1>
-          <p className="text-muted-foreground text-center mb-10">Choose the perfect option for your special someone</p>
+
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {productTypes.map((pt, i) => {

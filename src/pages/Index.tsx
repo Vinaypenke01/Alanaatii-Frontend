@@ -56,7 +56,7 @@ export default function Index() {
             </p>
           </Reveal>
           <Reveal width="100%" delay={0.5}>
-            <Link to="/order">
+            <Link to="/products">
               <Button size="lg" className="bg-gradient-gold text-primary-foreground text-lg px-8 py-6 hover:opacity-90 shadow-lg">
                 Create Your Letter
               </Button>
@@ -110,7 +110,7 @@ export default function Index() {
                   In an era of instant messages and ephemeral notifications, Alanaatii preserves the soul of communication. We believe that true sentiment isn't just felt — it's touched, smelled, and kept forever in a box of memories.
                 </p>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-8 pt-4">
                 <div className="space-y-2">
                   <ScrollText className="text-primary" size={32} />
@@ -129,23 +129,25 @@ export default function Index() {
       </section>
 
       {/* Featured Products — all 5 */}
-      <section className="py-20">
+      <section className="py-20 bg-primary/5">
         <div className="container text-center">
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-12">Our Products</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {productTypes.map((p, i) => (
               <Reveal key={p.id} delay={i * 0.1} width="100%">
-                <div className="rounded-xl overflow-hidden border bg-card shadow-sm hover:shadow-lg transition-shadow group h-full">
-                  <div className="overflow-hidden h-56">
-                    <img src={productImages[p.id]} alt={p.title} loading="lazy" width={800} height={800}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <Link to={`/products/${p.id}`} className="block h-full">
+                  <div className="rounded-xl overflow-hidden border bg-card shadow-sm hover:shadow-lg transition-shadow group h-full">
+                    <div className="overflow-hidden h-56">
+                      <img src={productImages[p.id]} alt={p.title} loading="lazy" width={800} height={800}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    </div>
+                    <div className="p-6 text-left">
+                      <h3 className="font-display text-xl font-semibold text-card-foreground">{p.title}</h3>
+                      <p className="text-muted-foreground text-sm mt-1">{p.description}</p>
+                      <p className="text-primary font-semibold mt-3">From ₹{p.from}</p>
+                    </div>
                   </div>
-                  <div className="p-6 text-left">
-                    <h3 className="font-display text-xl font-semibold text-card-foreground">{p.title}</h3>
-                    <p className="text-muted-foreground text-sm mt-1">{p.description}</p>
-                    <p className="text-primary font-semibold mt-3">From ₹{p.from}</p>
-                  </div>
-                </div>
+                </Link>
               </Reveal>
             ))}
           </div>
@@ -158,22 +160,23 @@ export default function Index() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-gradient-warm">
-        <div className="container text-center">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-12">What Our Customers Say</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((t, i) => (
-              <Reveal key={i} delay={i * 0.15} width="100%">
-                <div className="p-6 rounded-xl bg-card border shadow-sm text-left h-full">
-                  <div className="flex gap-0.5 mb-3">
-                    {Array.from({ length: t.rating }).map((_, j) => (
-                      <Star key={j} size={16} className="fill-primary text-primary" />
-                    ))}
-                  </div>
-                  <p className="text-card-foreground italic text-sm mb-4">"{t.text}"</p>
-                  <p className="text-sm font-semibold text-primary">{t.name}</p>
+      <section className="py-20 bg-gradient-warm overflow-hidden">
+        <div className="container text-center mb-12">
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground">What Our Customers Say</h2>
+        </div>
+
+        <div className="relative mask-horizontal-fades py-4">
+          <div className="marquee-track hover:[animation-play-state:paused]" style={{ animationDuration: '40s' }}>
+            {[...testimonials, ...testimonials, ...testimonials, ...testimonials].map((t, i) => (
+              <div key={`t-${i}`} className="p-6 rounded-xl bg-card border shadow-sm text-left w-80 md:w-96 flex-shrink-0 whitespace-normal">
+                <div className="flex gap-0.5 mb-3">
+                  {Array.from({ length: t.rating }).map((_, j) => (
+                    <Star key={j} size={16} className="fill-primary text-primary" />
+                  ))}
                 </div>
-              </Reveal>
+                <p className="text-card-foreground italic text-sm mb-4 leading-relaxed">"{t.text}"</p>
+                <p className="text-sm font-semibold text-primary">{t.name}</p>
+              </div>
             ))}
           </div>
         </div>
@@ -233,7 +236,7 @@ export default function Index() {
         <Reveal className="container" width="100%">
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">Ready to Create Something Special?</h2>
           <p className="text-muted-foreground max-w-xl mx-auto mb-8">Start crafting your personalized letter today and make someone's day unforgettable.</p>
-          <Link to="/order">
+          <Link to="/products">
             <Button size="lg" className="bg-gradient-gold text-primary-foreground text-lg px-8 py-6 hover:opacity-90 shadow-lg">
               Get Started Now
             </Button>

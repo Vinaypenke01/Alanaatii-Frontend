@@ -51,6 +51,17 @@ export interface Order {
   city: string;
   pincode: string;
   createdAt: string;
+  assignedAt?: string;
+  submittedAt?: string;
+  approvedAt?: string;
+  // Price Breakdown
+  basePrice?: number;
+  stylePrice?: number;
+  boxPrice?: number;
+  giftPrice?: number;
+  deliveryPrice?: number;
+  expressPrice?: number;
+  discountAmount?: number;
   scriptContent?: string;
   scriptApproved?: boolean;
   assignedWriterId?: string;
@@ -232,6 +243,11 @@ export const mockOrders: Order[] = [
     customerEmail: "aryan@example.com",
     status: "customer_review",
     total: 1300,
+    basePrice: 450,
+    stylePrice: 250,
+    boxPrice: 350,
+    giftPrice: 150,
+    deliveryPrice: 100,
     deliveryDate: "2026-05-01",
     address: "123, Rose Street",
     city: "Hyderabad",
@@ -264,14 +280,19 @@ export const mockOrders: Order[] = [
     customerName: "Karthik Reddy",
     customerPhone: "9876500001",
     customerEmail: "karthik@example.com",
-    status: "delivered",
-    total: 600,
-    deliveryDate: "2026-04-02",
-    address: "45, MG Road",
+    status: "payment_pending",
+    total: 1850,
+    basePrice: 850,
+    stylePrice: 250,
+    boxPrice: 450,
+    giftPrice: 200,
+    deliveryPrice: 100,
+    deliveryDate: "2026-04-20",
+    address: "15, Coastal Road",
     city: "Chennai",
     pincode: "600001",
-    createdAt: "2026-03-20",
-    assignedWriterId: "w2",
+    createdAt: "2026-04-14",
+    paymentScreenshot: "https://images.unsplash.com/photo-1580519542036-c47de6196ba5?auto=format&fit=crop&q=80&w=400",
     tone: "Fun & Casual",
     messageContent: "Ravi is my best friend. We've been through a lot together. It's his 25th birthday and I want to wish him a great year ahead.",
     scriptApproved: true,
@@ -288,21 +309,26 @@ export const mockOrders: Order[] = [
     textStyle: "Telugu",
     box: "Luxury Box",
     gift: null,
-    recipientName: "",
-    relation: "",
+    recipientName: "Anu",
+    relation: "Friend",
     customerName: "Sneha Rao",
     customerPhone: "9876500002",
     customerEmail: "sneha.r@example.com",
-    status: "awaiting_details",
-    total: 1400,
-    deliveryDate: "2026-05-15",
-    address: "78, Lake View",
+    status: "approved",
+    total: 850,
+    basePrice: 500,
+    stylePrice: 150,
+    boxPrice: 0,
+    giftPrice: 0,
+    deliveryPrice: 200,
+    deliveryDate: "2026-05-10",
+    address: "Apt 4B, Skyview Towers",
     city: "Bangalore",
     pincode: "560001",
     createdAt: "2026-04-08",
     tone: "Warm & Heartfelt",
-    messageContent: "",
-    recipientPhone: "",
+    messageContent: "Anu has been like a sister to me. She's moving away for a new job and I want to send her a box of letters she can read whenever she misses home.",
+    recipientPhone: "9876543210",
     primaryContact: "sender",
     userAnswers: [],
   },

@@ -4,16 +4,19 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useOrderStore } from "@/lib/orderStore";
 import { productTypes } from "@/lib/data";
-import { CheckCircle2, PackageOpen, Sparkles, ScrollText, PenLine, ChevronRight } from "lucide-react";
+import { CheckCircle2, PackageOpen, Sparkles, ScrollText, PenLine, ChevronRight, Clock, Heart } from "lucide-react";
 import productLetter from "@/assets/product-letter.jpg";
 import productLetterBox from "@/assets/product-letterbox.jpg";
 import productGiftSet from "@/assets/product-giftset.jpg";
 
 // Extended product details for the standalone pages
-const productDetailsMap: Record<string, { img: string; heroDesc: string; features: {icon: any, title: string, desc: string}[]; includes: string[] }> = {
+const productDetailsMap: Record<string, { img: string; heroDesc: string; perfectFor: string; deliveryTime: string; steps: string[]; features: {icon: any, title: string, desc: string}[]; includes: string[] }> = {
   script: {
     img: productLetter,
     heroDesc: "A purely digital experience. We craft the perfect words for your emotions and deliver a beautifully written script that you can use anywhere.",
+    perfectFor: "Birthdays, Anniversaries, and heartfelt digital messages.",
+    deliveryTime: "24 to 48 hours (Digital PDF)",
+    steps: ["Select your occasion & tone", "Share your personal story", "Receive your custom script via email"],
     features: [
       { icon: PenLine, title: "Expert Copywriting", desc: "Written by professional script writers tailored to your relation and tone." },
       { icon: ScrollText, title: "Digital Delivery", desc: "Receive your final script directly in your dashboard or email." },
@@ -24,6 +27,9 @@ const productDetailsMap: Record<string, { img: string; heroDesc: string; feature
   letterPaper: {
     img: productLetterBox,
     heroDesc: "For the DIY romantic. Select from our curated collection of premium, handcrafted calligraphy papers.",
+    perfectFor: "Calligraphers, writers, and DIY crafters.",
+    deliveryTime: "Dispatched in 24 hours. Delivered in 3-5 days.",
+    steps: ["Choose your favorite paper design", "Select the quantity you need", "We safely pack & ship it to your doorstep"],
     features: [
       { icon: PackageOpen, title: "Premium Materials", desc: "Thick, textured GSM papers perfect for ink and calligraphy." },
       { icon: Sparkles, title: "Beautiful Designs", desc: "Choose from floral, vintage, or modern minimalist borders." }
@@ -33,6 +39,9 @@ const productDetailsMap: Record<string, { img: string; heroDesc: string; feature
   letter: {
     img: productLetter,
     heroDesc: "Our signature service. A completely personalized, handwritten letter crafted to perfection on premium paper.",
+    perfectFor: "Long-distance relationships, apologies, and deep emotional expressions.",
+    deliveryTime: "Written in 2 days. Delivered in 4-6 days.",
+    steps: ["Share your thoughts or choose a script", "We handwrite it beautifully", "Sealed with wax and safely shipped to them"],
     features: [
       { icon: PenLine, title: "Handwritten Calligraphy", desc: "Authentic, beautiful handwriting in your choice of style." },
       { icon: ScrollText, title: "Personalized Script", desc: "We write the content based on your unique story." },
@@ -43,6 +52,9 @@ const productDetailsMap: Record<string, { img: string; heroDesc: string; feature
   letterBox: {
     img: productLetterBox,
     heroDesc: "Elevate your letter with a luxurious unboxing experience. The handwritten letter comes presented in a premium keepsake box.",
+    perfectFor: "Proposals, Milestone Anniversaries, and premium luxury gifting.",
+    deliveryTime: "Crafted in 2 days. Delivered in 4-6 days.",
+    steps: ["Customize your letter content", "We handwrite & pack it in a velvet box", "Delivered as a royal unboxing experience"],
     features: [
       { icon: PackageOpen, title: "Keepsake Box", desc: "A velvet-lined, sturdy premium box designed to last." },
       { icon: Sparkles, title: "Ribbon & Decoration", desc: "Tied with a silk ribbon for a perfect presentation." },
@@ -53,6 +65,9 @@ const productDetailsMap: Record<string, { img: string; heroDesc: string; feature
   letterBoxGift: {
     img: productGiftSet,
     heroDesc: "The ultimate gifting experience. Combine our premium handwritten letter box with curated add-on gifts to make their day unforgettable.",
+    perfectFor: "Valentine's Day, Major Birthdays, and Ultimate Surprises.",
+    deliveryTime: "Crafted & Assembled in 3 days. Delivered in 5-7 days.",
+    steps: ["Customize letter & select special gifts", "We create a stunning gift package", "Delivered to their doorstep to amaze them"],
     features: [
       { icon: Sparkles, title: "Curated Add-ons", desc: "Choose from chocolates, polaroids, teddies, and more." },
       { icon: PackageOpen, title: "Premium Packaging", desc: "Everything is safely and beautifully packed together." },
@@ -122,6 +137,24 @@ export default function ProductDetail() {
               </div>
             </div>
 
+            {/* Quick Facts */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+              <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/10">
+                <Heart className="text-primary mt-1 flex-shrink-0" size={20} />
+                <div>
+                  <p className="text-sm font-bold text-foreground mb-1">Perfect For</p>
+                  <p className="text-sm text-muted-foreground leading-snug">{details.perfectFor}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/10">
+                <Clock className="text-primary mt-1 flex-shrink-0" size={20} />
+                <div>
+                  <p className="text-sm font-bold text-foreground mb-1">Delivery Time</p>
+                  <p className="text-sm text-muted-foreground leading-snug">{details.deliveryTime}</p>
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-8 mb-12">
               <h3 className="font-display text-2xl font-bold border-b pb-2">Why Choose This?</h3>
               <div className="grid gap-6">
@@ -139,6 +172,21 @@ export default function ProductDetail() {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+
+            {/* How It Works */}
+            <div className="space-y-6 mb-12">
+              <h3 className="font-display text-2xl font-bold border-b pb-2">How It Works</h3>
+              <div className="flex flex-col gap-5">
+                {details.steps.map((step, idx) => (
+                  <div key={idx} className="flex items-center gap-4">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm flex-shrink-0 border border-primary/20">
+                      {idx + 1}
+                    </div>
+                    <p className="text-foreground font-medium">{step}</p>
+                  </div>
+                ))}
               </div>
             </div>
 

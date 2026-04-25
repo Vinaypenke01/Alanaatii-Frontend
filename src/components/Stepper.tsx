@@ -8,9 +8,9 @@ interface StepperProps {
 
 export function Stepper({ steps, current }: StepperProps) {
   return (
-    <div className="flex items-center justify-center gap-1 mb-8 overflow-x-auto pb-2">
+    <div className="flex items-center justify-start md:justify-center gap-1 mb-8 overflow-x-auto pb-2 w-full">
       {steps.map((label, i) => (
-        <div key={i} className="flex items-center">
+        <div key={i} className="flex items-center flex-shrink-0">
           <div className="flex flex-col items-center min-w-[60px]">
             <div
               className={cn(

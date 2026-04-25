@@ -7,7 +7,7 @@ import { ArrowRight, AlertCircle, FileSignature } from "lucide-react";
 export default function UserRequiredDetailsList() {
   // Filter orders that need script details
   const pendingOrders = mockOrders.filter(
-    (order) => !order.messageContent && order.productType !== "letterPaper"
+    (order) => (!order.userAnswers || order.userAnswers.length === 0) && order.productType !== "letterPaper"
   );
 
   return (

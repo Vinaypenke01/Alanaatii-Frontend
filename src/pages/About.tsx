@@ -1,14 +1,31 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
+import heroBg from "@/assets/hero-bg.jpg";
 
 export default function About() {
   return (
     <div className="min-h-screen">
       <Navbar />
-      <div className="pt-24 pb-20">
+      
+      {/* Page Header */}
+      <section className="relative h-[35vh] min-h-[250px] flex items-center justify-center overflow-hidden mt-16">
+        <img src={heroBg} alt="About Alanaatii" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="container relative z-10 text-center">
+          <Reveal width="100%">
+            <h1 className="font-display text-4xl md:text-5xl font-bold text-primary-foreground mb-4">
+              About Alanaatii
+            </h1>
+            <p className="text-primary-foreground/80 text-lg max-w-2xl mx-auto">
+              Reviving the art of handwritten letters and heartfelt gifting.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      <div className="py-20">
         <Reveal className="container max-w-3xl" width="100%">
-          <h1 className="font-display text-4xl font-bold text-foreground text-center mb-8">About Alanaatii</h1>
 
           <div className="space-y-6 text-muted-foreground leading-relaxed">
             <p>

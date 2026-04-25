@@ -21,22 +21,22 @@ Managing the luxury letter and gift customization experience.
   - **Pincode Lookup**: System checks `pincode_rules` for the first 3 digits of the zip. If not found, a default ₹100 charge is applied to `pincode_fee`.
 - **Primary Models**: `pricing_day_rules`, `pincode_rules`, `orders`.
 
-### Phase 3: Strict Two-Stage Data Collection (Checkout vs Script Form)
-The checkout process is intentionally lean. The detailed script requirements are collected in a separate, mandatory form after payment verification.
+### Phase 3: Staged Data Collection (Checkout Details vs Dashboard Questionnaire)
+The customization process is broken into two stages to ensure we collect all necessary data without overwhelming the user during checkout.
 
-- **Stage 1 — Checkout** ([OrderFlow.tsx](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-main/src/pages/OrderFlow.tsx)):
-  - User provides only basic sender info: `customer_name`, `customer_phone`, `customer_email`.
-  - Recipient details (`recipient_name`, `recipient_phone`, `primary_contact`), `relation`, `message_content`, and `special_notes` are **not** collected here.
-  - Order is created with these fields as `NULL`.
+- **Stage 1 — Checkout (Basic Script Details)** ([OrderFlow.tsx](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-main/src/pages/OrderFlow.tsx)):
+  - During the "Details" step, the user provides:
+    - Sender info (`customer_name`, `customer_phone`, `customer_email`).
+    - Basic Recipient info (`recipient_name`, `recipient_phone`, `primary_contact`).
+    - The core letter instruction (`relation`, `message_content`, `special_notes`).
 
-- **Stage 2 — Mandatory Script Details Form** ([UserPendingDetails.tsx](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-main/src/pages/dashboard/UserPendingDetails.tsx)):
-  - After payment is verified by admin, order status transitions to `awaiting_details`.
-  - A confirmation email is sent to the user containing a direct link to the Script Details Form.
-  - The user can also access this form from their Dashboard in two ways:
-    1. **"Required Details" sidebar tab** ([UserRequiredDetailsList.tsx](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-main/src/pages/dashboard/UserRequiredDetailsList.tsx)) — lists all orders pending details with a "Fill Script Details" button.
-    2. **Orange "Action Required" alert** on each order card in the Dashboard home.
-  - This form collects: `recipient_name`, `recipient_phone`, `primary_contact`, `relation`, `message_content`, `special_notes`.
-  - **Gating Rule**: The writer assignment engine is blocked (`status` remains `awaiting_details`) until the user submits this form. Once submitted, status advances to `order_placed` and the assignment engine activates.
+- **Stage 2 — Dashboard (Relationship Questionnaire)** ([UserPendingDetails.tsx](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-main/src/pages/dashboard/UserPendingDetails.tsx)):
+  - After payment is verified, the order status transitions to `awaiting_details`.
+  - The user must complete a relationship-specific questionnaire (e.g., "How did you meet?").
+  - They can access this form from their Dashboard via:
+    1. **"Required Details" sidebar tab** ([UserRequiredDetailsList.tsx](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-main/src/pages/dashboard/UserRequiredDetailsList.tsx)).
+    2. **Orange "Action Required" alert** on the order card.
+  - **Gating Rule**: The writer assignment engine is blocked (`status` remains `awaiting_details`) until the user submits this questionnaire (i.e., `user_answers` is populated). Once submitted, status advances to `order_placed` and the assignment engine activates.
 - **Primary Models**: `mandatory_questions`, `relation_categories`.
 
 ### Phase 4: Fiscal Submission (Checkout)
@@ -46,6 +46,8 @@ The checkout process is intentionally lean. The detailed script requirements are
   - **Transaction**: A new record is created in `transactions` with status `pending`.
   - **Asset Registry**: The screenshot is recorded in `assets` with `entity_type: payment_proof`.
 - **Primary Models**: `transactions`, `assets`, `coupons`, `orders` (Initial status: `payment_pending`).
+- **Admin Verification Action**: Admin uses the **Verify Payments** hub. Clicking "View Breakdown" opens a comprehensive modal showing the payment screenshot alongside the itemized project breakdown (Price of Letter, Style, Box, etc.) to ensure fiscal accuracy before approval.
+- **Approval Workflow**: Approving a payment triggers the **Auto-Assignment Engine** immediately, transitioning status to `assigned_to_writer`.
 
 ---
 
@@ -55,9 +57,10 @@ How professionals interact with assignments and draft content.
 ### Phase 1: Assignment Engine
 - **Action**: Admin verifies a payment.
 - **Logic**: 
-  - System executes a "Least-Loaded" query: `SELECT writer_id FROM active_writers ORDER BY job_count ASC LIMIT 1`.
-  - A new `writer_assignments` record is created.
+  - System executes a **Least-Loaded** query to find the writer with the fewest active jobs.
+  - A new `writer_assignments` record is created, and `assigned_at` is timestamped.
   - **Notification**: Sent to the writer via `notifications`.
+  - **Tracking**: The assignment is now visible in the **Admin Writer Detail** history tabs.
 - **Primary Models**: `writers`, `writer_assignments`, `notifications`, `order_status_history`.
 
 ### Phase 2: Drafting & Collaboration
@@ -70,8 +73,9 @@ How professionals interact with assignments and draft content.
 ### Phase 3: Customer Feedback Loop
 - **Action**: Customer views script in [UserOrderDetail](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-main/src/pages/dashboard/UserOrderDetail.tsx).
 - **Logic**:
-  - If **Approved**: Order status moves to `approved` (Ready for physical writing).
-  - If **Revision Requested**: Customer's feedback is saved to `script_versions.writer_note` (or a dedicated table) and status shifts to `revision_requested`.
+  - If **Approved**: Order status moves to `approved` (Ready for physical writing), and `approved_at` is timestamped.
+  - If **Revision Requested**: Customer's feedback is saved to `orders.revision_feedback` and status shifts to `revision_requested`.
+  - **Copy Utility**: Admins can use the **Copy Script** button in the order modal to grab the approved text for physical execution.
 - **Primary Models**: `script_versions`, `orders`, `notifications`.
 
 ---
@@ -99,7 +103,9 @@ The [AdminWriters](file:///e:/Client-Projects/alanaatii/alanaatii-letters-gifts-
 | Action | Controller / Page | Affected Table | Business Outcome |
 | :--- | :--- | :--- | :--- |
 | **Recruit** | `AdminWriters.tsx` | `writers` | New staff member onboarded |
-| **Activate** | `AdminWriters.tsx` | `writers.status`| Writer added to auto-job queue |
+| **Verify Payment**| `AdminPayments.tsx` | `orders` | Itemized audit vs Screenshot |
+| **Auto-Assign** | `AdminPayments.tsx` | `writer_assignments`| Least-loaded writer gets the job |
+| **Manage Order** | `AdminOrders.tsx` | `orders.status` | 12-tab status-based filtering |
 | **Skill Up** | `AdminWriters.tsx` | `writers.languages`| Writer eligible for more job types |
 | **Audit** | System Level | `audit_logs` | Accountability for staffing changes |
 
@@ -155,7 +161,7 @@ A high-level view of how tables rely on each other.
 | Flow Event | Writing Table | Dependent Lookups |
 | :--- | :--- | :--- |
 | **New Order** | `orders`, `transactions` | `catalog_items`, `coupons`, `users` |
-| **Script Details Submitted** | `orders` (recipient, relation, message) | `mandatory_questions`, `relation_categories` |
+| **Questionnaire Submitted** | `orders` (userAnswers) | `mandatory_questions`, `relation_categories` |
 | **Writer Assigned**| `writer_assignments` | `writers`, `orders` |
 | **Script Submitted**| `script_versions` | `orders`, `writer_assignments` |
 | **Refund Processed**| `transactions` (rejected) | `orders`, `audit_logs` |
@@ -167,4 +173,4 @@ A high-level view of how tables rely on each other.
 > **Data Integrity Constraint**: An `order` cannot move to `assigned_to_writer` until the associated `transaction` is marked as `verified` in the Payments Hub.
 
 > [!IMPORTANT]
-> **Gating Constraint**: An `order` in `awaiting_details` status cannot advance to `assigned_to_writer` until the user submits the mandatory Script Details Form (`recipient_name`, `relation`, `message_content` are all non-NULL).
+> **Gating Constraint**: An `order` in `awaiting_details` status cannot advance to `assigned_to_writer` until the user submits the mandatory Relationship Questionnaire (`userAnswers` array is non-empty).
