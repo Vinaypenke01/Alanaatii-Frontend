@@ -29,7 +29,8 @@ import { CalendarIcon, ArrowLeft, ArrowRight, Check, Minus, Plus, Ticket, CheckC
 import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useAuthStore } from "@/lib/authStore";
 
 function getSteps(productType: string): string[] {
   switch (productType) {
@@ -51,9 +52,20 @@ function getSteps(productType: string): string[] {
 export default function OrderFlow() {
   const store = useOrderStore();
   const navigate = useNavigate();
+  const { user, isAuthenticated, login } = useAuthStore();
   const { step, productType, setStep, setField } = store;
   const [couponInput, setCouponInput] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  // Sync user details when authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setField("customerName", user.full_name);
+      setField("customerEmail", user.email);
+      if (user.phone_wa) setField("customerPhone", user.phone_wa);
+    }
+  }, [isAuthenticated, user, setField]);
 
   const steps = useMemo(() => getSteps(productType), [productType]);
   const currentStepName = steps[step];
@@ -129,7 +141,29 @@ export default function OrderFlow() {
 
   const next = () => {
     if (!canNext()) { toast.error("Please complete all required fields"); return; }
+    
+    // Intercept for Auth after configuration steps
+    const isConfigStep = ["Style & Date", "Script Package", "Quantity"].includes(currentStepName);
+    if (isConfigStep && !isAuthenticated) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
     if (step < steps.length - 1) setStep(step + 1);
+  };
+
+  const handleMockGoogleLogin = () => {
+    // Mock login for demo
+    login({
+      id: "u123",
+      email: "customer@example.com",
+      full_name: "John Doe",
+      phone_wa: "9876543210"
+    });
+    setIsAuthModalOpen(false);
+    toast.success("Successfully signed in with Google!");
+    // Proceed to next step automatically
+    setStep(step + 1);
   };
   const prev = () => { 
     if (step > 0) {
@@ -632,37 +666,40 @@ export default function OrderFlow() {
 
       {/* Success Modal */}
       <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+        {/* ... existing content ... */}
+      </Dialog>
+
+      {/* Mandatory Auth Modal */}
+      <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
         <DialogContent className="sm:max-w-md text-center p-8">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mb-2">
-              <CheckCircle2 size={48} className="text-green-500 animate-in zoom-in duration-500" />
+          <div className="flex flex-col items-center gap-6">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <CheckCircle2 size={32} className="text-primary" />
             </div>
-            <DialogHeader className="text-center sm:text-center">
-              <DialogTitle className="text-2xl font-bold font-display text-foreground">
-                Payment Receipt Submitted!
-              </DialogTitle>
-              <DialogDescription className="text-muted-foreground pt-2 text-base leading-relaxed">
-                Thank you for your payment. Your order is now being processed.
-                <br />
-                <span className="font-semibold text-primary block mt-4">
-                  Kindly note: Admin will review your payment and you will get notifications through WhatsApp and email for further details.
-                </span>
+            <DialogHeader className="text-center sm:text-center space-y-2">
+              <DialogTitle className="text-2xl font-bold font-display">Sign in to Continue</DialogTitle>
+              <DialogDescription className="text-muted-foreground text-sm">
+                To provide a personalized luxury experience, we require all customers to be registered.
               </DialogDescription>
             </DialogHeader>
+            
+            <div className="w-full space-y-4 pt-4">
+              <Button 
+                onClick={handleMockGoogleLogin}
+                className="w-full h-12 bg-white text-foreground border hover:bg-muted font-bold flex items-center justify-center gap-3 shadow-sm"
+              >
+                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
+                Continue with Google
+              </Button>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+                <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Or securely</span></div>
+              </div>
+              <p className="text-[10px] text-muted-foreground leading-relaxed">
+                By continuing, you agree to Alanaatii's <span className="underline cursor-pointer">Terms of Service</span> and <span className="underline cursor-pointer">Privacy Policy</span>.
+              </p>
+            </div>
           </div>
-          <DialogFooter className="sm:justify-center mt-6">
-            <Button 
-              className="w-full sm:w-48 bg-gradient-gold text-primary-foreground font-bold h-12 shadow-lg hover:opacity-90 transition-all"
-              onClick={() => {
-                setShowSuccessModal(false);
-                store.reset();
-                setStep(0);
-                navigate("/");
-              }}
-            >
-              Okay
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
